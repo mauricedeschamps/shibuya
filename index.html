@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#111111">
+  <title>Shibuya Go - 渋谷観光ガイド</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.jpg">
+  <!-- Google Fonts & Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* Light / Dark テーマ変数 */
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1e1e1e;
+      --bg-card: #2c2c2c;
+      --text-primary: #f0f0f0;
+      --text-secondary: #b0b0b0;
+      --accent: #e67e22;
+      --border: #3a3a3a;
+      --button-bg: #333;
+      --button-hover: #e67e22;
+    }
+
+    body.light {
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --accent: #e67e22;
+      --border: #dee2e6;
+      --button-bg: #e9ecef;
+      --button-hover: #e67e22;
+    }
+
+    /* コンテナ */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* ヘッダー */
+    .app-header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .header-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    button, .lang-select {
+      background: var(--button-bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    button:hover, .lang-select:hover {
+      background: var(--button-hover);
+      color: white;
+      border-color: var(--button-hover);
+    }
+
+    select {
+      background: var(--button-bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: var(--text-primary);
+    }
+
+    /* スポンサー枠 */
+    .sponsor {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .sponsor-placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sponsor-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .sponsor-note {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    /* カルーセル スポットリスト */
+    .carousel-section {
+      margin: 2rem 0;
+    }
+
+    .carousel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .carousel-buttons button {
+      background: var(--bg-card);
+      margin: 0 0.25rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .spots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      transition: 0.2s;
+    }
+
+    .spot-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .spot-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .spot-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .spot-info {
+      padding: 1rem;
+    }
+
+    .spot-info h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .spot-info p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* 交通アクセス情報 */
+    .access-info {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border: 1px solid var(--border);
+    }
+
+    .access-info h2 {
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rail-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .rail-badge {
+      background: var(--bg-primary);
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* Google Map */
+    .map-container {
+      margin: 2rem 0;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 320px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* 詳細ページ */
+    .detail-view {
+      background: var(--bg-primary);
+      min-height: 60vh;
+      padding: 1rem;
+    }
+
+    .detail-card {
+      background: var(--bg-card);
+      border-radius: 28px;
+      overflow: hidden;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .detail-card img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+    }
+
+    .detail-content {
+      padding: 1.5rem;
+    }
+
+    .back-btn {
+      background: var(--button-bg);
+      border: none;
+      margin-bottom: 1rem;
+    }
+
+    .official-link {
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--accent);
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 40px;
+      text-decoration: none;
+    }
+
+    /* フッター */
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 680px) {
+      .spots-grid {
+        grid-template-columns: 1fr;
+      }
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div id="app">
+    <!-- メインページ -->
+    <div id="main-page">
+      <div class="app-header">
+        <div class="container header-content">
+          <div class="logo">
+            <h1>SHIBUYA GO</h1>
+            <p>Tokyo • 渋谷 • 渋谷区</p>
+          </div>
+          <div class="controls">
+            <select id="langSwitcher" class="lang-select">
+              <option value="en">🇬🇧 English</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="ja">🇯🇵 日本語</option>
+            </select>
+            <button id="themeToggle">🌓 モード切替</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- スポンサー枠 上部 -->
+        <div class="sponsor" id="sponsorTop">
+          <div class="sponsor-placeholder">
+            <!-- 後から画像・URLを入力してください -->
+            <a href="#" target="_blank" class="sponsor-link" id="sponsorTopLink">
+              <i class="fas fa-ad"></i> 広告スポット (設定可能)
+            </a>
+          </div>
+          <div class="sponsor-note">※ スポンサー画像・URLはHTML内コメントを参照</div>
+        </div>
+
+        <!-- カルーセルエリア -->
+        <div class="carousel-section">
+          <div class="carousel-header">
+            <h2 id="spotsTitle">✨ Hot Spots in Shibuya</h2>
+            <div class="carousel-buttons">
+              <button id="prevBtn"><i class="fas fa-chevron-left"></i> 前6件</button>
+              <button id="nextBtn">次6件 <i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div id="spotsContainer" class="spots-grid"></div>
+        </div>
+
+        <!-- 交通アクセス情報 -->
+        <div class="access-info">
+          <h2><i class="fas fa-train"></i> <span data-i18n="access_title">渋谷駅アクセス</span></h2>
+          <p data-i18n="access_desc">JR・地下鉄・私鉄の主要路線が集まる巨大ターミナル</p>
+          <div class="rail-list" id="railLines">
+            <!-- JSで動的に多言語対応表示 -->
+          </div>
+        </div>
+
+        <!-- Google Map (渋谷駅中心) -->
+        <div class="map-container">
+          <iframe
+            title="Shibuya Station Map"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Shibuya+Station+Tokyo&center=35.6595,139.7004&zoom=15&language=en">
+          </iframe>
+        </div>
+
+        <!-- 下部スポンサー枠 -->
+        <div class="sponsor" id="sponsorBottom">
+          <div class="sponsor-placeholder">
+            <a href="#" target="_blank" class="sponsor-link" id="sponsorBottomLink">
+              <i class="fas fa-bullhorn"></i> パートナー募集 (画像/URL編集可)
+            </a>
+          </div>
+          <div class="sponsor-note">※ スポンサー画像は後から差し替え可能：id sponsorTopLink / sponsorBottomLink の href, innerHTML 編集</div>
+        </div>
+      </div>
+
+      <footer>
+        <p>Contact us<br><a href="mailto:mementomorikatsu@gmail.com">mementomorikatsu@gmail.com</a></p>
+        <p style="font-size:0.7rem; margin-top:0.5rem;">© Shibuya Go - PWA Tourist Guide</p>
+      </footer>
+    </div>
+
+    <!-- 詳細ページ（初期非表示） -->
+    <div id="detail-page" class="hidden">
+      <div class="container detail-view">
+        <button id="backButton" class="back-btn"><i class="fas fa-arrow-left"></i> <span data-i18n="back">Back</span></button>
+        <div id="detailContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ------------------------------ 多言語テキスト辞書 ---------------------------------
+    const translations = {
+      en: {
+        spotsTitle: "✨ Hot Spots in Shibuya",
+        access_title: "Shibuya Station Access",
+        access_desc: "Major JR, Subway, and Private railway lines converge here.",
+        rail_lines: ["JR Yamanote Line", "JR Saikyo Line", "Tokyo Metro Ginza Line", "Tokyo Metro Hanzomon Line", "Tokyo Metro Fukutoshin Line", "Keio Inokashira Line", "Tokyu Toyoko Line", "Tokyu Den-en-toshi Line"],
+        back: "Back",
+        sponsor_default: "Advertisement Space (customizable)",
+        contact: "Contact us"
+      },
+      it: {
+        spotsTitle: "✨ Luoghi imperdibili di Shibuya",
+        access_title: "Accesso Stazione di Shibuya",
+        access_desc: "Principali linee JR, Metropolitane e Private.",
+        rail_lines: ["JR Linea Yamanote", "JR Linea Saikyo", "Metro Ginza", "Metro Hanzomon", "Metro Fukutoshin", "Keio Inokashira", "Tokyu Toyoko", "Tokyu Den-en-toshi"],
+        back: "Indietro",
+        sponsor_default: "Spazio pubblicitario (modificabile)",
+        contact: "Contattaci"
+      },
+      ru: {
+        spotsTitle: "✨ Главные места в Сибуе",
+        access_title: "Станция Сибуя - транспорт",
+        access_desc: "Крупный узел JR, метро и частных линий.",
+        rail_lines: ["JR Линия Яманотэ", "JR Линия Сайкё", "Метро Гиндза", "Метро Хандзомон", "Метро Фукутосин", "Кэйо Ино касара", "Токю Тоёко", "Токю Дэнъэнтоси"],
+        back: "Назад",
+        sponsor_default: "Рекламное место (настраивается)",
+        contact: "Связаться с нами"
+      },
+      ja: {
+        spotsTitle: "✨ 渋谷のおすすめスポット",
+        access_title: "渋谷駅 交通アクセス",
+        access_desc: "JR・地下鉄・私鉄が集まる巨大ターミナル駅",
+        rail_lines: ["JR山手線", "JR埼京線", "東京メトロ銀座線", "東京メトロ半蔵門線", "東京メトロ副都心線", "京王井の頭線", "東急東横線", "東急田園都市線"],
+        back: "戻る",
+        sponsor_default: "広告スペース (後から画像・URL設定可)",
+        contact: "お問い合わせ"
+      }
+    };
+
+    // スポットデータ (12件) - 多言語対応
+    const spotsData = [
+      { id: 0, img: "https://picsum.photos/id/104/400/300", en: { name: "SHIBUYA SKY", desc: "Panoramic city views from 230m high" }, it: { name: "SHIBUYA SKY", desc: "Viste panoramiche della città da 230m" }, ru: { name: "SHIBUYA SKY", desc: "Панорамный вид с 230 м" }, ja: { name: "SHIBUYA SKY", desc: "地上230mからの絶景" }, url: "https://www.shibuya-scramble-square.com/sky/" },
+      { id: 1, img: "https://picsum.photos/id/20/400/300", en: { name: "Shibuya Scramble & Hachiko", desc: "World-famous crossing and loyal dog statue" }, it: { name: "Incrocio Shibuya & Hachiko", desc: "Incrocio famoso e statua del cane" }, ru: { name: "Переход Сибуя и Хатико", desc: "Всемирно известный переход" }, ja: { name: "渋谷スクランブル交差点・ハチ公", desc: "世界一の交差点と忠犬ハチ公像" }, url: "https://www.gotokyo.org/jp/spot/74/index.html" },
+      { id: 2, img: "https://picsum.photos/id/96/400/300", en: { name: "MIYASHITA PARK", desc: "Rooftop park + trendy shops" }, it: { name: "MIYASHITA PARK", desc: "Parco sul tetto e negozi alla moda" }, ru: { name: "МИЯСИТА ПАРК", desc: "Парк на крыше и магазины" }, ja: { name: "MIYASHITA PARK", desc: "屋上公園とショップ＆フード" }, url: "https://www.miyashita-park.tokyo/" },
+      { id: 3, img: "https://picsum.photos/id/26/400/300", en: { name: "Shibuya PARCO", desc: "Art, fashion, Nintendo Tokyo & more" }, it: { name: "Shibuya PARCO", desc: "Arte, moda, Nintendo Tokyo" }, ru: { name: "Сибуя ПАРКО", desc: "Искусство, мода, Nintendo Tokyo" }, ja: { name: "渋谷PARCO", desc: "アート・ファッション・任天堂" }, url: "https://shibuya.parco.jp/" },
+      { id: 4, img: "https://picsum.photos/id/91/400/300", en: { name: "Nintendo TOKYO / Pokémon Center", desc: "Official store & Pokémon paradise" }, it: { name: "Nintendo TOKYO / Pokémon Center", desc: "Negozi ufficiali Nintendo e Pokémon" }, ru: { name: "Nintendo TOKYO / Pokémon Center", desc: "Официальные магазины" }, ja: { name: "Nintendo TOKYO / ポケセン", desc: "公式ショップ＆ポケモンセンター" }, url: "https://www.nintendo.co.jp/store/" },
+      { id: 5, img: "https://picsum.photos/id/169/400/300", en: { name: "SHIBUYA109", desc: "Iconic fashion building" }, it: { name: "SHIBUYA109", desc: "Fashion icona" }, ru: { name: "SHIBUYA109", desc: "Легендарный торговый центр" }, ja: { name: "SHIBUYA109", desc: "渋谷ファッションの聖地" }, url: "https://www.shibuya109.jp/" },
+      { id: 6, img: "https://picsum.photos/id/155/400/300", en: { name: "Center Gai", desc: "Vibrant entertainment street" }, it: { name: "Center Gai", desc: "Via dell'intrattenimento" }, ru: { name: "Центр Гай", desc: "Оживленная улица" }, ja: { name: "センター街", desc: "若者の文化・飲食ストリート" }, url: "https://www.shibuyabunka.jp/spot/detail/24" },
+      { id: 7, img: "https://picsum.photos/id/42/400/300", en: { name: "Tower Records Shibuya", desc: "Japan's biggest music store" }, it: { name: "Tower Records Shibuya", desc: "Il più grande negozio di musica" }, ru: { name: "Tower Records Сибуя", desc: "Главный музыкальный магазин" }, ja: { name: "タワーレコード渋谷店", desc: "日本最大級の音楽ショップ" }, url: "https://tower.jp/store/710" },
+      { id: 8, img: "https://picsum.photos/id/15/400/300", en: { name: "Cat Street", desc: "Trendy shops & cafes between Harajuku & Shibuya" }, it: { name: "Cat Street", desc: "Negozi alla moda e caffè" }, ru: { name: "Кэт-Стрит", desc: "Модные магазины и кафе" }, ja: { name: "キャットストリート", desc: "原宿～渋谷のおしゃれ通り" }, url: "https://www.cat-street.jp/" },
+      { id: 9, img: "https://picsum.photos/id/117/400/300", en: { name: "Bunkamura", desc: "Concert hall & museum" }, it: { name: "Bunkamura", desc: "Sala concerti e museo" }, ru: { name: "Бункамура", desc: "Концертный зал, музей" }, ja: { name: "Bunkamura", desc: "音楽ホール・美術館" }, url: "https://www.bunkamura.co.jp/" },
+      { id: 10, img: "https://picsum.photos/id/12/400/300", en: { name: "Satei Hato (Chatei Hatou)", desc: "Vintage coffee house with quiet atmosphere" }, it: { name: "Satei Hato", desc: "Caffè d'epoca tranquillo" }, ru: { name: "Сатей Хато", desc: "Винтажная кофейня" }, ja: { name: "茶亭 羽當", desc: "レトロな雰囲気の名曲喫茶" }, url: "https://tabelog.com/tokyo/A1303/A130301/13002361/" },
+      { id: 11, img: "https://picsum.photos/id/58/400/300", en: { name: "WOMB / ATOM TOKYO", desc: "Famous nightclubs for electronic music" }, it: { name: "WOMB / ATOM TOKYO", desc: "Discoteche famose" }, ru: { name: "WOMB / ATOM TOKYO", desc: "Известные ночные клубы" }, ja: { name: "WOMB / ATOM TOKYO", desc: "電子音楽の名門クラブ" }, url: "https://www.womb.co.jp/" }
+    ];
+
+    let currentLang = "en";
+    let currentPage = 0;  // 0:最初の6件, 1:次の6件
+    let currentDetailId = null;
+    const itemsPerPage = 6;
+
+    // DOM 要素
+    const mainPageDiv = document.getElementById("main-page");
+    const detailPageDiv = document.getElementById("detail-page");
+    const spotsContainer = document.getElementById("spotsContainer");
+    const detailContent = document.getElementById("detailContent");
+    const langSwitcher = document.getElementById("langSwitcher");
+    const themeToggle = document.getElementById("themeToggle");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const backBtn = document.getElementById("backButton");
+    const railLinesContainer = document.getElementById("railLines");
+
+    // テーマ切替
+    function initTheme() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
+      else if (localStorage.getItem('theme') === 'dark') document.body.classList.remove('light');
+      else if (!prefersDark) document.body.classList.add('light');
+    }
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    });
+    initTheme();
+
+    // 多言語表示更新
+    function updateLanguage() {
+      const t = translations[currentLang];
+      document.getElementById("spotsTitle").innerText = t.spotsTitle;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if(t[key]) el.innerText = t[key];
+      });
+      // アクセス路線リスト
+      railLinesContainer.innerHTML = "";
+      t.rail_lines.forEach(line => {
+        const badge = document.createElement("span");
+        badge.className = "rail-badge";
+        badge.innerText = line;
+        railLinesContainer.appendChild(badge);
+      });
+      // 再レンダリングスポット
+      renderSpotsGrid();
+      if(currentDetailId !== null) renderDetailPage(currentDetailId);
+    }
+
+    function renderSpotsGrid() {
+      const start = currentPage * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageSpots = spotsData.slice(start, end);
+      spotsContainer.innerHTML = "";
+      pageSpots.forEach(spot => {
+        const card = document.createElement("div");
+        card.className = "spot-card";
+        card.onclick = () => showDetail(spot.id);
+        card.innerHTML = `
+          <img src="${spot.img}" alt="${spot[currentLang].name}" loading="lazy">
+          <div class="spot-info">
+            <h3>${spot[currentLang].name}</h3>
+            <p>${spot[currentLang].desc}</p>
+          </div>
+        `;
+        spotsContainer.appendChild(card);
+      });
+    }
+
+    function showDetail(id) {
+      currentDetailId = id;
+      mainPageDiv.classList.add("hidden");
+      detailPageDiv.classList.remove("hidden");
+      renderDetailPage(id);
+      window.scrollTo(0,0);
+      // ブラウザ履歴プッシュ
+      history.pushState({ detail: true }, "", `#spot-${id}`);
+    }
+
+    function renderDetailPage(id) {
+      const spot = spotsData.find(s => s.id === id);
+      if (!spot) return;
+      detailContent.innerHTML = `
+        <div class="detail-card">
+          <img src="${spot.img}" alt="${spot[currentLang].name}">
+          <div class="detail-content">
+            <h2>${spot[currentLang].name}</h2>
+            <p style="margin: 1rem 0;">${spot[currentLang].desc}</p>
+            <a href="${spot.url}" target="_blank" rel="noopener noreferrer" class="official-link">
+              <i class="fas fa-external-link-alt"></i> ${currentLang === 'ja' ? '公式サイトへ' : 'Official Website'}
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    function goBackToMain() {
+      currentDetailId = null;
+      mainPageDiv.classList.remove("hidden");
+      detailPageDiv.classList.add("hidden");
+      history.pushState({ main: true }, "", "/");
+    }
+
+    // カルーセルページ移動
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderSpotsGrid();
+      }
+    }
+    function nextPage() {
+      if ((currentPage + 1) * itemsPerPage < spotsData.length) {
+        currentPage++;
+        renderSpotsGrid();
+      }
+    }
+    prevBtn.onclick = prevPage;
+    nextBtn.onclick = nextPage;
+
+    backBtn.onclick = goBackToMain;
+
+    // 言語変更
+    langSwitcher.addEventListener("change", (e) => {
+      currentLang = e.target.value;
+      updateLanguage();
+    });
+
+    // ブラウザバック対応
+    window.addEventListener("popstate", (e) => {
+      if (mainPageDiv.classList.contains("hidden")) {
+        goBackToMain();
+      } else {
+        // メインのままでも閉じない
+      }
+    });
+
+    // スポンサー変更案内 (あらかじめ設定の例)
+    // ユーザーが後から編集する場所: sponsorTopLink, sponsorBottomLink のhref, innerHTMLを編集可能
+    // ここではプレースホルダテキストを多言語対応に更新する関数
+    function updateSponsorText() {
+      const defaultText = translations[currentLang].sponsor_default;
+      const topLink = document.getElementById("sponsorTopLink");
+      const bottomLink = document.getElementById("sponsorBottomLink");
+      if(topLink && !topLink.getAttribute("data-custom")) {
+        topLink.innerHTML = `<i class="fas fa-ad"></i> ${defaultText}`;
+      }
+      if(bottomLink && !bottomLink.getAttribute("data-custom")) {
+        bottomLink.innerHTML = `<i class="fas fa-bullhorn"></i> ${defaultText}`;
+      }
+    }
+    // 言語変更時スポンサー更新
+    const origUpdateLang = updateLanguage;
+    updateLanguage = function() {
+      origUpdateLang();
+      updateSponsorText();
+    };
+    updateLanguage();
+    // 最初のレンダリング
+    renderSpotsGrid();
+
+    // Service Worker 登録
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('SW registered: ', reg);
+        }).catch(err => {
+          console.log('SW registration failed: ', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
