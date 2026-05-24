@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#111111">
+  <title>Shibuya Go - 渋谷観光ガイド</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.jpg">
+  <!-- Google Fonts & Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* Light / Dark テーマ変数 */
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1e1e1e;
+      --bg-card: #2c2c2c;
+      --text-primary: #f0f0f0;
+      --text-secondary: #b0b0b0;
+      --accent: #e67e22;
+      --border: #3a3a3a;
+      --button-bg: #333;
+      --button-hover: #e67e22;
+    }
+
+    body.light {
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --accent: #e67e22;
+      --border: #dee2e6;
+      --button-bg: #e9ecef;
+      --button-hover: #e67e22;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* ヘッダー */
+    .app-header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      width: 100%;
+    }
+    .header-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .logo p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    button, .lang-select {
+      background: var(--button-bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+    button:hover, .lang-select:hover {
+      background: var(--button-hover);
+      color: white;
+      border-color: var(--button-hover);
+    }
+    select {
+      background: var(--button-bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: var(--text-primary);
+    }
+
+    /* スワイプカルーセル (横スクロール + スナップ) */
+    .carousel-section {
+      margin: 2rem 0;
+    }
+    .carousel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .carousel-header h2 {
+      font-size: 1.8rem;
+    }
+    .slide-indicator {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      transition: 0.2s;
+    }
+    .dot.active {
+      background: var(--accent);
+      width: 24px;
+      border-radius: 4px;
+    }
+    .swipe-container {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      cursor: grab;
+    }
+    .swipe-container:active {
+      cursor: grabbing;
+    }
+    .slides {
+      display: flex;
+      width: 100%;
+    }
+    .slide {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      padding: 0 0.25rem;
+    }
+    .spots-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.5rem;
+    }
+    /* レスポンシブ: タブレットで3列、スマホで2列 (ただし1スライドに6項目が折り返し表示) */
+    @media (max-width: 1100px) {
+      .spots-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .spots-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .spot-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .spot-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .spot-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .spot-info {
+      padding: 1rem;
+    }
+    .spot-info h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .spot-info p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 交通アクセス情報 */
+    .access-info {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border: 1px solid var(--border);
+    }
+    .rail-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .rail-badge {
+      background: var(--bg-primary);
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .map-container {
+      margin: 2rem 0;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 320px;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .sponsor {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .sponsor-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .sponsor-note {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    /* 詳細ページ */
+    .detail-view {
+      background: var(--bg-primary);
+      min-height: 60vh;
+      padding: 1rem;
+    }
+    .detail-card {
+      background: var(--bg-card);
+      border-radius: 28px;
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .detail-card img {
+      width: 100%;
+      max-height: 450px;
+      object-fit: cover;
+    }
+    .detail-content {
+      padding: 1.8rem;
+    }
+    .detail-content h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .detail-desc {
+      margin: 1rem 0;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .official-link {
+      display: inline-block;
+      margin-top: 1rem;
+      background: var(--accent);
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 40px;
+      text-decoration: none;
+    }
+    .back-btn {
+      background: var(--button-bg);
+      border: none;
+      margin-bottom: 1rem;
+    }
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .hidden {
+      display: none;
+    }
+    /* スワイプ時のスクロールバーを少し隠す */
+    .swipe-container::-webkit-scrollbar {
+      height: 4px;
+    }
+    .swipe-container::-webkit-scrollbar-track {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .swipe-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="dark">
+<div id="app">
+  <!-- メインページ -->
+  <div id="main-page">
+    <div class="app-header">
+      <div class="container header-content">
+        <div class="logo">
+          <h1>SHIBUYA GO</h1>
+          <p>Tokyo • 渋谷 • 渋谷区</p>
+        </div>
+        <div class="controls">
+          <select id="langSwitcher" class="lang-select">
+            <option value="en">🇬🇧 English</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+          <button id="themeToggle">🌓 <span data-i18n="theme_btn">Dark/Light</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- 上部スポンサー -->
+      <div class="sponsor" id="sponsorTop">
+        <div class="sponsor-placeholder">
+          <a href="#" target="_blank" class="sponsor-link" id="sponsorTopLink">
+            <i class="fas fa-ad"></i> <span data-i18n="sponsor_default">Advertisement Space</span>
+          </a>
+        </div>
+        <div class="sponsor-note">※ 画像・URLはHTML内id指定で後から編集可</div>
+      </div>
+
+      <!-- スワイプカルーセル -->
+      <div class="carousel-section">
+        <div class="carousel-header">
+          <h2 data-i18n="spots_title">✨ Hot Spots in Shibuya</h2>
+          <div class="slide-indicator" id="slideDots"></div>
+        </div>
+        <div class="swipe-container" id="swipeContainer">
+          <div class="slides" id="slidesContainer">
+            <!-- スライドはJSで動的生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 交通アクセス -->
+      <div class="access-info">
+        <h2><i class="fas fa-train"></i> <span data-i18n="access_title">Shibuya Station Access</span></h2>
+        <p data-i18n="access_desc">Major JR, Subway, and Private railway lines converge here.</p>
+        <div class="rail-list" id="railLines"></div>
+      </div>
+
+      <!-- Google Map -->
+      <div class="map-container">
+        <iframe title="Shibuya Station Map" loading="lazy"
+                src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Shibuya+Station+Tokyo&center=35.6595,139.7004&zoom=15&language=en">
+        </iframe>
+      </div>
+
+      <!-- 下部スポンサー -->
+      <div class="sponsor" id="sponsorBottom">
+        <div class="sponsor-placeholder">
+          <a href="#" target="_blank" class="sponsor-link" id="sponsorBottomLink">
+            <i class="fas fa-bullhorn"></i> <span data-i18n="sponsor_default">Partner Space</span>
+          </a>
+        </div>
+        <div class="sponsor-note">※ 画像・リンクはid sponsorTopLink / sponsorBottomLink を編集</div>
+      </div>
+    </div>
+
+    <footer>
+      <p><span data-i18n="contact">Contact us</span><br><a href="mailto:mementomorikatsu@gmail.com">mementomorikatsu@gmail.com</a></p>
+      <p style="font-size:0.7rem; margin-top:0.5rem;">© Shibuya Go - PWA Tourist Guide</p>
+    </footer>
+  </div>
+
+  <!-- 詳細ページ -->
+  <div id="detail-page" class="hidden">
+    <div class="container detail-view">
+      <button id="backButton" class="back-btn"><i class="fas fa-arrow-left"></i> <span data-i18n="back">Back</span></button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- 多言語辞書（詳細説明付き）----------
+  const translations = {
+    en: {
+      spots_title: "✨ Hot Spots in Shibuya",
+      access_title: "Shibuya Station Access",
+      access_desc: "Major JR, Subway, and Private railway lines converge here.",
+      rail_lines: ["JR Yamanote Line", "JR Saikyo Line", "Tokyo Metro Ginza Line", "Tokyo Metro Hanzomon Line", "Tokyo Metro Fukutoshin Line", "Keio Inokashira Line", "Tokyu Toyoko Line", "Tokyu Den-en-toshi Line"],
+      back: "Back",
+      theme_btn: "Dark/Light",
+      contact: "Contact us",
+      sponsor_default: "Advertisement Space (customizable)",
+    },
+    it: {
+      spots_title: "✨ Luoghi imperdibili di Shibuya",
+      access_title: "Accesso Stazione di Shibuya",
+      access_desc: "Principali linee JR, Metropolitane e Private.",
+      rail_lines: ["JR Linea Yamanote", "JR Linea Saikyo", "Metro Ginza", "Metro Hanzomon", "Metro Fukutoshin", "Keio Inokashira", "Tokyu Toyoko", "Tokyu Den-en-toshi"],
+      back: "Indietro",
+      theme_btn: "Chiaro/Scuro",
+      contact: "Contattaci",
+      sponsor_default: "Spazio pubblicitario (modificabile)",
+    },
+    ru: {
+      spots_title: "✨ Главные места в Сибуе",
+      access_title: "Станция Сибуя - транспорт",
+      access_desc: "Крупный узел JR, метро и частных линий.",
+      rail_lines: ["JR Линия Яманотэ", "JR Линия Сайкё", "Метро Гиндза", "Метро Хандзомон", "Метро Фукутосин", "Кэйо Инокасира", "Токю Тоёко", "Токю Дэнъэнтоси"],
+      back: "Назад",
+      theme_btn: "Тёмная/Светлая",
+      contact: "Связаться с нами",
+      sponsor_default: "Рекламное место (настраивается)",
+    },
+    ja: {
+      spots_title: "✨ 渋谷のおすすめスポット",
+      access_title: "渋谷駅 交通アクセス",
+      access_desc: "JR・地下鉄・私鉄が集まる巨大ターミナル駅",
+      rail_lines: ["JR山手線", "JR埼京線", "東京メトロ銀座線", "東京メトロ半蔵門線", "東京メトロ副都心線", "京王井の頭線", "東急東横線", "東急田園都市線"],
+      back: "戻る",
+      theme_btn: "ダーク/ライト",
+      contact: "お問い合わせ",
+      sponsor_default: "広告スペース (後から設定可)",
+    }
+  };
+
+  // スポットデータ (12件) - 詳細説明付き
+  const spotsData = [
+    { id:0, img:"https://picsum.photos/id/104/400/300",
+      en:{ name:"SHIBUYA SKY", short:"Panoramic city views", detail:"Experience breathtaking 360-degree views from 229m above Shibuya. The rooftop observation deck offers open-air spaces, mirrored corners perfect for photos, and stunning sunset vistas. Don't miss the 'Shibuya Sky Light' show at night." },
+      it:{ name:"SHIBUYA SKY", short:"Viste panoramiche", detail:"Goditi una vista mozzafiato a 229 metri su Shibuya. Terrazza all'aperto, angoli specchiati e spettacoli di luce notturni." },
+      ru:{ name:"SHIBUYA SKY", short:"Панорамный вид", detail:"Смотровая площадка на высоте 229 м. Открытая терраса, зеркальные углы и ночное световое шоу." },
+      ja:{ name:"SHIBUYA SKY", short:"地上229mの絶景", detail:"屋上展望台から360度のパノラマ。開放感あふれる空間と夜景ライトショーが魅力。" },
+      url:"https://www.shibuya-scramble-square.com/sky/" },
+    { id:1, img:"https://picsum.photos/id/20/400/300",
+      en:{ name:"Shibuya Scramble & Hachiko", short:"World-famous crossing", detail:"The busiest pedestrian crossing in the world, surrounded by massive video billboards. Meet at the Hachiko statue, a touching symbol of loyalty. Best viewed from the second floor of Starbucks." },
+      it:{ name:"Incrocio Shibuya & Hachiko", short:"Incrocio famoso", detail:"L'incrocio più affollato del mondo con maxi schermi. Statua di Hachiko, simbolo di fedeltà." },
+      ru:{ name:"Переход Сибуя и Хатико", short:"Всемирно известный переход", detail:"Самый оживлённый пешеходный переход. Статуя Хатико — символ верности." },
+      ja:{ name:"渋谷スクランブル交差点・ハチ公", short:"世界一の交差点", detail:"巨大ビジョンに囲まれた交差点。忠犬ハチ公像は待ち合わせの名所。" },
+      url:"https://www.gotokyo.org/jp/spot/74/index.html" },
+    // 以下10件も同様に詳細説明付き（簡潔に記述、実際は長め）
+    { id:2, img:"https://picsum.photos/id/96/400/300", en:{ name:"MIYASHITA PARK", short:"Rooftop park + shops", detail:"A revitalized park with a rooftop green space, skateboarding area, beach volleyball court, and trendy shops. Open 24h park area. Great for picnic and urban culture." }, it:{ name:"MIYASHITA PARK", short:"Parco sul tetto", detail:"Parco rinnovato con area skate, beach volley, negozi alla moda. Aperto 24h." }, ru:{ name:"МИЯСИТА ПАРК", short:"Парк на крыше", detail:"Парк с зоной для скейтбординга, пляжным волейболом и модными магазинами." }, ja:{ name:"MIYASHITA PARK", short:"屋上公園とショップ", detail:"スケボー・ビーチバレー・24時間利用可能な屋上公園。最新トレンドの複合施設。" }, url:"https://www.miyashita-park.tokyo/" },
+    { id:3, img:"https://picsum.photos/id/26/400/300", en:{ name:"Shibuya PARCO", short:"Art & Nintendo Tokyo", detail:"A cutting-edge shopping complex featuring Nintendo TOKYO, Pokémon Center, CG art gallery, and roppongi-style fashion. Rooftop garden also accessible." }, it:{ name:"Shibuya PARCO", short:"Arte e Nintendo", detail:"Complesso con Nintendo TOKYO, Pokémon Center, galleria d'arte e moda." }, ru:{ name:"Сибуя ПАРКО", short:"Искусство и Nintendo", detail:"Торговый центр с Nintendo TOKYO, Pokémon Center, галереей современного искусства." }, ja:{ name:"渋谷PARCO", short:"アート＆任天堂", detail:"Nintendo TOKYOやポケモンセンター、アートギャラリーを備えた次世代型商業施設。" }, url:"https://shibuya.parco.jp/" },
+    { id:4, img:"https://picsum.photos/id/91/400/300", en:{ name:"Nintendo TOKYO / Pokémon Center", short:"Official stores", detail:"The largest Nintendo store in Japan with exclusive merch, life-size statues, game demos. Adjacent Pokémon Center sells plushies, cards, and rare items." }, it:{ name:"Nintendo TOKYO / Pokémon Center", short:"Negozi ufficiali", detail:"Il più grande negozio Nintendo in Giappone, Pokémon Center con peluche e carte rare." }, ru:{ name:"Nintendo TOKYO / Pokémon Center", short:"Официальные магазины", detail:"Крупнейший магазин Nintendo в Японии, Pokémon Center с плюшевыми игрушками." }, ja:{ name:"Nintendo TOKYO / ポケセン", short:"公式ショップ", detail:"日本最大の任天堂ストア。等身大フィギュアや限定グッズ。ポケモンセンターも併設。" }, url:"https://www.nintendo.co.jp/store/" },
+    { id:5, img:"https://picsum.photos/id/169/400/300", en:{ name:"SHIBUYA109", short:"Iconic fashion building", detail:"The legendary '109' department store, birthplace of 'gal' fashion. 10 floors of trendy apparel, accessories, and cafes. Always at the forefront of youth culture." }, it:{ name:"SHIBUYA109", short:"Edificio moda iconico", detail:"Il mitico '109', 10 piani di moda giovanile, accessori e caffè. Culla della cultura 'gal'." }, ru:{ name:"SHIBUYA109", short:"Легендарный торговый центр", detail:"Легендарный универмаг '109', 10 этажей модной одежды. Колыбель 'gal' культуры." }, ja:{ name:"SHIBUYA109", short:"渋谷ファッションの聖地", detail:"「ギャル」ファッション発祥の地。10フロアに及ぶトレンド発信基地。" }, url:"https://www.shibuya109.jp/" },
+    { id:6, img:"https://picsum.photos/id/155/400/300", en:{ name:"Center Gai", short:"Vibrant entertainment", detail:"Pedestrian-only street packed with izakayas, game centers, karaoke, and international restaurants. It's the epicenter of Shibuya's nightlife." }, it:{ name:"Center Gai", short:"Divertimento vibrante", detail:"Strada pedonale piena di izakaya, giochi, karaoke. Epicentro della vita notturna." }, ru:{ name:"Центр Гай", short:"Оживленная улица", detail:"Пешеходная улица с идзакая, игровыми центрами, караоке. Эпицентр ночной жизни." }, ja:{ name:"センター街", short:"活気あふれる通り", detail:"居酒屋・ゲームセンター・カラオケが密集。渋谷の夜の中心地。" }, url:"https://www.shibuyabunka.jp/spot/detail/24" },
+    { id:7, img:"https://picsum.photos/id/42/400/300", en:{ name:"Tower Records Shibuya", short:"Giant music store", detail:"9 floors of CDs, vinyl, DVDs, and J-pop merchandise. Regular in-store events and live performances. A must for music lovers." }, it:{ name:"Tower Records Shibuya", short:"Negozio di musica gigante", detail:"9 piani di CD, vinili, DVD. Eventi e concerti dal vivo." }, ru:{ name:"Tower Records Сибуя", short:"Гигантский музыкальный магазин", detail:"9 этажей CD, винилов, DVD. Живые выступления." }, ja:{ name:"タワーレコード渋谷店", short:"巨大音楽ショップ", detail:"CD・レコード・グッズが9フロア。ライブイベントも頻繁に開催。" }, url:"https://tower.jp/store/710" },
+    { id:8, img:"https://picsum.photos/id/15/400/300", en:{ name:"Cat Street", short:"Trendy shops & cafes", detail:"A relaxing pedestrian path connecting Harajuku and Shibuya. Lined with select shops, vintage clothing, sneaker stores, and stylish cafes. Perfect for a casual stroll." }, it:{ name:"Cat Street", short:"Negozi e caffè alla moda", detail:"Percorso pedonale che collega Harajuku a Shibuya, negozi vintage, sneaker e caffè." }, ru:{ name:"Кэт-Стрит", short:"Модные магазины и кафе", detail:"Пешеходная дорожка между Харадзюку и Сибуей, винтажные магазины, кафе." }, ja:{ name:"キャットストリート", short:"おしゃれな通り", detail:"原宿〜渋谷を結ぶ散策路。セレクトショップ・ヴィンテージ・カフェが点在。" }, url:"https://www.cat-street.jp/" },
+    { id:9, img:"https://picsum.photos/id/117/400/300", en:{ name:"Bunkamura", short:"Concert hall & museum", detail:"A cultural complex with a concert hall (Orchard Hall), theater (Theatre Cocoon), and a museum featuring rotating art exhibitions. Classical and contemporary performances." }, it:{ name:"Bunkamura", short:"Sala concerti e museo", detail:"Complesso culturale con sala concerti, teatro, museo d'arte. Mostre temporanee." }, ru:{ name:"Бункамура", short:"Концертный зал и музей", detail:"Культурный комплекс: концертный зал, театр, музей с временными выставками." }, ja:{ name:"Bunkamura", short:"コンサートホール＆美術館", detail:"オーチャードホール、シアターコクーン、美術館を擁する文化複合施設。" }, url:"https://www.bunkamura.co.jp/" },
+    { id:10, img:"https://picsum.photos/id/12/400/300", en:{ name:"Satei Hato (Chatei Hatou)", short:"Vintage coffee house", detail:"A classic 'kissaten' (old-school coffee shop) since 1960s. Famous for its siphon coffee, handmade cakes, and retro Showa-era atmosphere. Quiet refuge from the busy streets." }, it:{ name:"Satei Hato", short:"Caffè d'epoca", detail:"'Kissaten' tradizionale dal 1960. Caffè a sifone, torte fatte in casa, atmosfera retrò." }, ru:{ name:"Сатей Хато", short:"Винтажная кофейня", detail:"Традиционная 'киссатэн' с 1960-х. Кофе-сифон, домашние торты, ретро-атмосфера." }, ja:{ name:"茶亭 羽當", short:"レトロな名曲喫茶", detail:"サイフォンコーヒーと手作りケーキが自慢の老舗喫茶店。昭和レトロな空間。" }, url:"https://tabelog.com/tokyo/A1303/A130301/13002361/" },
+    { id:11, img:"https://picsum.photos/id/58/400/300", en:{ name:"WOMB / ATOM TOKYO", short:"Famous nightclubs", detail:"Legendary clubs for techno and electronic music. WOMB features a world-class sound system and international DJs. ATOM TOKYO is a multi-floor club with anime-themed parties." }, it:{ name:"WOMB / ATOM TOKYO", short:"Discoteche famose", detail:"Club leggendari per techno. WOMB: sound system top, DJ internazionali. ATOM: party a tema anime." }, ru:{ name:"WOMB / ATOM TOKYO", short:"Известные ночные клубы", detail:"Легендарные клубы техно. WOMB: звук мирового класса. ATOM: вечеринки в стиле аниме." }, ja:{ name:"WOMB / ATOM TOKYO", short:"名門クラブ", detail:"テクノ・エレクトロの殿堂。WOMBは世界級サウンド、ATOMはアニメパーティー。" }, url:"https://www.womb.co.jp/" }
+  ];
+
+  let currentLang = "en";
+  let currentDetailId = null;
+
+  // DOM elements
+  const mainPage = document.getElementById("main-page");
+  const detailPage = document.getElementById("detail-page");
+  const slidesContainer = document.getElementById("slidesContainer");
+  const dotsContainer = document.getElementById("slideDots");
+  const swipeContainer = document.getElementById("swipeContainer");
+  const backBtn = document.getElementById("backButton");
+  const langSwitcher = document.getElementById("langSwitcher");
+  const themeToggle = document.getElementById("themeToggle");
+  const railLinesDiv = document.getElementById("railLines");
+
+  // スライドを2つ作成 (6項目×2スライド = 全12件)
+  let totalSlides = Math.ceil(spotsData.length / 6);
+  function buildSlides() {
+    slidesContainer.innerHTML = "";
+    for (let i = 0; i < totalSlides; i++) {
+      const slide = document.createElement("div");
+      slide.className = "slide";
+      const grid = document.createElement("div");
+      grid.className = "spots-grid";
+      const start = i * 6;
+      const end = Math.min(start + 6, spotsData.length);
+      for (let j = start; j < end; j++) {
+        const spot = spotsData[j];
+        const card = document.createElement("div");
+        card.className = "spot-card";
+        card.onclick = () => showDetail(spot.id);
+        card.innerHTML = `
+          <img src="${spot.img}" alt="${spot[currentLang].name}" loading="lazy">
+          <div class="spot-info">
+            <h3>${spot[currentLang].name}</h3>
+            <p>${spot[currentLang].short}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      slide.appendChild(grid);
+      slidesContainer.appendChild(slide);
+    }
+    updateDots();
+  }
+
+  function updateDots() {
+    const activeIndex = Math.round(swipeContainer.scrollLeft / swipeContainer.clientWidth);
+    dotsContainer.innerHTML = "";
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement("div");
+      dot.className = "dot" + (i === activeIndex ? " active" : "");
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  function onScrollEnd() {
+    updateDots();
+  }
+
+  swipeContainer.addEventListener("scroll", () => {
+    clearTimeout(window.scrollEndTimer);
+    window.scrollEndTimer = setTimeout(onScrollEnd, 150);
+  });
+  window.addEventListener("resize", () => setTimeout(updateDots, 100));
+
+  // 詳細ページ関連
+  function showDetail(id) {
+    currentDetailId = id;
+    mainPage.classList.add("hidden");
+    detailPage.classList.remove("hidden");
+    renderDetailPage(id);
+    history.pushState({ detail: true }, "", `#spot-${id}`);
+  }
+  function renderDetailPage(id) {
+    const spot = spotsData.find(s => s.id === id);
+    if (!spot) return;
+    const detailText = spot[currentLang].detail;
+    const name = spot[currentLang].name;
+    detailContent.innerHTML = `
+      <div class="detail-card">
+        <img src="${spot.img}" alt="${name}">
+        <div class="detail-content">
+          <h2>${name}</h2>
+          <div class="detail-desc">${detailText}</div>
+          <a href="${spot.url}" target="_blank" rel="noopener" class="official-link">
+            <i class="fas fa-external-link-alt"></i> ${currentLang === 'ja' ? '公式サイトへ' : 'Official Website'}
+          </a>
+        </div>
+      </div>
+    `;
+  }
+  function goBackToMain() {
+    currentDetailId = null;
+    mainPage.classList.remove("hidden");
+    detailPage.classList.add("hidden");
+    history.pushState({ main: true }, "", "/");
+  }
+  backBtn.onclick = goBackToMain;
+  window.addEventListener("popstate", (e) => {
+    if (!mainPage.classList.contains("hidden")) return;
+    goBackToMain();
+  });
+
+  // 多言語更新
+  function updateLanguage() {
+    const t = translations[currentLang];
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (t[key]) el.innerText = t[key];
+    });
+    // 路線表示
+    railLinesDiv.innerHTML = "";
+    t.rail_lines.forEach(line => {
+      const badge = document.createElement("span");
+      badge.className = "rail-badge";
+      badge.innerText = line;
+      railLinesDiv.appendChild(badge);
+    });
+    // 再構築スライド
+    buildSlides();
+    if (currentDetailId !== null) renderDetailPage(currentDetailId);
+    // スポンサー文言更新 (リンク内テキスト)
+    document.querySelectorAll("#sponsorTopLink span, #sponsorBottomLink span").forEach(span => {
+      if (span.getAttribute("data-i18n") === "sponsor_default") span.innerText = t.sponsor_default;
+    });
+  }
+
+  // テーマ切替
+  function initTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
+    else if (localStorage.getItem('theme') === 'dark') document.body.classList.remove('light');
+    else if (!prefersDark) document.body.classList.add('light');
+  }
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+    localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+  });
+  initTheme();
+
+  langSwitcher.addEventListener("change", (e) => {
+    currentLang = e.target.value;
+    updateLanguage();
+  });
+
+  // 初期化
+  buildSlides();
+  updateLanguage();
+  setTimeout(updateDots, 100);
+
+  // Service Worker 登録
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered', reg)).catch(err => console.log('SW error', err));
+    });
+  }
+</script>
+</body>
+</html>
