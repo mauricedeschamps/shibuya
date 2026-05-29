@@ -156,8 +156,9 @@
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 1.5rem;
+      align-items: start;
     }
-    /* カードの高さを揃えるための修正 */
+    /* カードのスタイル - 高さはJSで動的に設定される */
     .spot-card {
       background: var(--bg-card);
       border-radius: 20px;
@@ -167,7 +168,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       display: flex;
       flex-direction: column;
-      height: 100%;
+      width: 100%;
     }
     .spot-card:hover {
       transform: translateY(-5px);
@@ -197,7 +198,6 @@
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      flex: 1;
     }
     @media (max-width: 1100px) {
       .spots-grid { grid-template-columns: repeat(3, 1fr); }
@@ -238,10 +238,11 @@
       height: 100%;
       border: 0;
     }
+    /* スポンサー枠 - オレンジ楕円なし・シンプルデザイン */
     .sponsor {
       background: var(--bg-secondary);
       border-radius: 24px;
-      padding: 1rem;
+      padding: 1.2rem;
       margin: 1.5rem 0;
       text-align: center;
       border: 1px solid var(--border);
@@ -249,28 +250,24 @@
     .sponsor-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background: var(--accent);
-      padding: 0.5rem 1.2rem;
-      border-radius: 60px;
-      color: white;
+      gap: 0.8rem;
       text-decoration: none;
-      font-weight: 600;
-      transition: 0.2s;
+      color: var(--text-primary);
+      transition: opacity 0.2s;
     }
     .sponsor-link img {
-      max-height: 50px;
+      max-height: 80px;  /* より大きく表示 */
       width: auto;
-      border-radius: 8px;
+      border-radius: 12px;
+      object-fit: contain;
     }
     .sponsor-link:hover {
-      opacity: 0.9;
-      transform: scale(1.02);
+      opacity: 0.8;
     }
     .sponsor-note {
       font-size: 0.7rem;
       color: var(--text-secondary);
-      margin-top: 0.5rem;
+      margin-top: 0.8rem;
     }
     .detail-view {
       background: var(--bg-primary);
@@ -421,7 +418,7 @@
 
 <script src="sponsorConfig.js"></script>
 <script>
-  // ---------- 多言語辞書（駅番号付き）----------
+  // ---------- 多言語辞書 ----------
   const translations = {
     en: {
       spots_title: "✨ Hot Spots in Shibuya",
@@ -491,6 +488,26 @@
 
   let totalSlides = Math.ceil(spotsData.length / 6);
 
+  // カードの高さを揃える関数（各スライドごとに全てのカードの高さを最大値に統一）
+  function equalizeCardHeights() {
+    // 各スライド内のすべての .spot-card を取得
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(slide => {
+      const cards = slide.querySelectorAll('.spot-card');
+      if (cards.length === 0) return;
+      // 一旦高さをautoにリセット
+      cards.forEach(card => card.style.height = 'auto');
+      // 最大高さを計算
+      let maxHeight = 0;
+      cards.forEach(card => {
+        const height = card.offsetHeight;
+        if (height > maxHeight) maxHeight = height;
+      });
+      // すべてのカードに最大高さを設定
+      cards.forEach(card => card.style.height = `${maxHeight}px`);
+    });
+  }
+
   function buildSlides() {
     slidesContainer.innerHTML = "";
     for (let i = 0; i < totalSlides; i++) {
@@ -517,6 +534,10 @@
       slide.appendChild(grid);
       slidesContainer.appendChild(slide);
     }
+    // 高さの調整（画像読み込み完了まで少し待つ）
+    setTimeout(() => {
+      equalizeCardHeights();
+    }, 100);
     updateDots();
   }
 
@@ -534,7 +555,12 @@
     clearTimeout(window.scrollEndTimer);
     window.scrollEndTimer = setTimeout(updateDots, 150);
   });
-  window.addEventListener("resize", () => setTimeout(updateDots, 100));
+  window.addEventListener("resize", () => {
+    setTimeout(() => {
+      updateDots();
+      equalizeCardHeights();
+    }, 200);
+  });
 
   function showDetail(id) {
     currentDetailId = id;
@@ -572,7 +598,7 @@
   backBtn.onclick = goBackToMain;
   window.addEventListener("popstate", () => { if (!mainPage.classList.contains("hidden")) return; goBackToMain(); });
 
-  // スポンサーを動的に生成
+  // スポンサーを動的に生成（オレンジ楕円なし）
   function renderSponsors() {
     const topContainer = document.getElementById("sponsorTopContainer");
     const bottomContainer = document.getElementById("sponsorBottomContainer");
@@ -580,13 +606,13 @@
     function createSponsorLink(config) {
       if (config.imageUrl && config.linkUrl) {
         return `<a href="${config.linkUrl}" target="_blank" class="sponsor-link">
-                  <img src="${config.imageUrl}" alt="${config.altText}" style="max-height:50px;">
+                  <img src="${config.imageUrl}" alt="${config.altText}">
                 </a>`;
       } else {
         const defaultText = translations[currentLang]?.sponsor_default || config.defaultText;
-        return `<a href="#" class="sponsor-link" style="cursor:default; background:var(--button-bg);" onclick="return false;">
+        return `<span class="sponsor-link" style="cursor:default; color: var(--text-secondary);">
                   <i class="fas fa-ad"></i> ${defaultText}
-                </a>`;
+                </span>`;
       }
     }
     
@@ -629,6 +655,11 @@
   renderSponsors();
   updateLanguage();
   setTimeout(updateDots, 100);
+
+  // 画像読み込み完了後に再度高さ調整
+  window.addEventListener('load', () => {
+    setTimeout(equalizeCardHeights, 300);
+  });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
