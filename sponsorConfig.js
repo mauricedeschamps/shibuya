@@ -9,8 +9,8 @@ const sponsorConfig = {
     defaultText: "Advertisement Space (click to set)"  // 画像未設定時のテキスト
   },
   bottom: {
-    imageUrl: "",
-    linkUrl: "",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXCeLDkWffBRqH71UJZryHBRNa2gJFSnO6BNQ6C7x-ZVmK4hHh7yj7WzU&s=10",
+    linkUrl: "https://www.gotokyo.org/jp/destinations/western-tokyo/shibuya/index.html",
     altText: "Bottom Partner",
     defaultText: "Partner Space (customizable)"
   }
