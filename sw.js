@@ -3,6 +3,7 @@ const urlsToCache = [
   '/',
   'index.html',
   'manifest.json',
+'sponsorConfig.js',
   'icons/icon-192.jpg',
   'icons/icon-512.jpg',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
