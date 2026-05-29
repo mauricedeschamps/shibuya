@@ -9,7 +9,7 @@ const sponsorConfig = {
     defaultText: "Advertisement Space (click to set)"  // 画像未設定時のテキスト
   },
   bottom: {
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMucYvDECoKWYRI_uq4QgG33-53795syP9KjqTxyogKpcaVVWh42GeHiw&s=10",
+    imageUrl: "https://park.tachikawaonline.jp/complex/10_hikarie/3.jpg",
     linkUrl: "https://www.hikarie.jp/",
     altText: "Bottom Partner",
     defaultText: "Partner Space (customizable)"
