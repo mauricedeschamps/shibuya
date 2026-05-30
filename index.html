@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#111111">
-  <title>Shibuya Go - 渋谷観光ガイド</title>
+  <title>Shibuya Go - 渋谷・原宿観光ガイド</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -132,6 +132,7 @@
       border-radius: 50%;
       background: var(--text-secondary);
       transition: 0.2s;
+      cursor: pointer;
     }
     .dot.active {
       background: var(--accent);
@@ -165,7 +166,6 @@
       gap: 1.5rem;
       align-items: start;
     }
-    /* カードのスタイル - 高さはJSで均等化＋ダミーで行数を統一 */
     .spot-card {
       background: var(--bg-card);
       border-radius: 20px;
@@ -363,7 +363,7 @@
       <div class="container header-content">
         <div class="logo">
           <h1>SHIBUYA GO</h1>
-          <p>Tokyo • 渋谷 • 渋谷区</p>
+          <p>Shibuya & Harajuku • Tokyo</p>
         </div>
         <div class="controls">
           <select id="langSwitcher" class="lang-select">
@@ -384,10 +384,10 @@
         <div class="sponsor-note">※ 画像・URLは sponsorConfig.js を編集</div>
       </div>
 
-      <!-- スワイプカルーセル -->
+      <!-- スワイプカルーセル (3スライド: 渋谷①, 渋谷②, 原宿) -->
       <div class="carousel-section">
         <div class="carousel-header">
-          <h2 data-i18n="spots_title">✨ Hot Spots in Shibuya</h2>
+          <h2 data-i18n="spots_title">✨ Hot Spots in Shibuya & Harajuku</h2>
           <div class="slide-indicator" id="slideDots"></div>
         </div>
         <div class="swipe-container" id="swipeContainer">
@@ -438,7 +438,7 @@
   // ======================= 多言語辞書 =======================
   const translations = {
     en: {
-      spots_title: "✨ Hot Spots in Shibuya",
+      spots_title: "✨ Hot Spots in Shibuya & Harajuku",
       access_title: "Shibuya Station Access",
       access_desc: "Lines & station codes",
       rail_lines: ["JR Yamanote Line (JY20)","JR Saikyo Line (JA10)","Tokyo Metro Ginza Line (G01)","Tokyo Metro Hanzomon Line (Z01)","Tokyo Metro Fukutoshin Line (F16)","Keio Inokashira Line (IN01)","Tokyu Toyoko Line (TY01)","Tokyu Den-en-toshi Line (DT01)"],
@@ -447,7 +447,7 @@
       contact: "Contact us",
     },
     it: {
-      spots_title: "✨ Luoghi imperdibili di Shibuya",
+      spots_title: "✨ Luoghi imperdibili di Shibuya & Harajuku",
       access_title: "Accesso Stazione di Shibuya",
       access_desc: "Linee e codici stazione",
       rail_lines: ["JR Yamanote (JY20)","JR Saikyo (JA10)","Metro Ginza (G01)","Metro Hanzomon (Z01)","Metro Fukutoshin (F16)","Keio Inokashira (IN01)","Tokyu Toyoko (TY01)","Tokyu Den-en-toshi (DT01)"],
@@ -456,7 +456,7 @@
       contact: "Contattaci",
     },
     ru: {
-      spots_title: "✨ Главные места в Сибуе",
+      spots_title: "✨ Главные места в Сибуе и Харадзюку",
       access_title: "Станция Сибуя - транспорт",
       access_desc: "Линии и коды станций",
       rail_lines: ["JR Yamanote (JY20)","JR Saikyo (JA10)","Метро Ginza (G01)","Метро Hanzomon (Z01)","Метро Fukutoshin (F16)","Keio Inokashira (IN01)","Tokyu Toyoko (TY01)","Tokyu Den-en-toshi (DT01)"],
@@ -465,7 +465,7 @@
       contact: "Связаться с нами",
     },
     ja: {
-      spots_title: "✨ 渋谷のおすすめスポット",
+      spots_title: "✨ 渋谷・原宿のおすすめスポット",
       access_title: "渋谷駅 アクセス",
       access_desc: "各路線・駅番号",
       rail_lines: ["JR山手線 (JY20)","JR埼京線 (JA10)","東京メトロ銀座線 (G01)","東京メトロ半蔵門線 (Z01)","東京メトロ副都心線 (F16)","京王井の頭線 (IN01)","東急東横線 (TY01)","東急田園都市線 (DT01)"],
@@ -475,8 +475,9 @@
     }
   };
 
-  // ======================= スポットデータ (12件) =======================
-  const spotsData = [
+  // ======================= スポットデータ =======================
+  // 渋谷 12件 (既存)
+  const shibuyaSpots = [
     { id:0, img:"https://picsum.photos/id/104/400/300", en:{ name:"SHIBUYA SKY", short:"Panoramic views from 229m. Open-air deck, mirrored corners, night light show." }, it:{ name:"SHIBUYA SKY", short:"Viste panoramiche da 229m. Terrazza all'aperto, spettacolo di luci notturno." }, ru:{ name:"SHIBUYA SKY", short:"Панорамный вид с 229 м. Открытая терраса, ночное световое шоу." }, ja:{ name:"SHIBUYA SKY", short:"地上229mからの絶景。屋外展望台、鏡のコーナー、夜景ライトショー。" }, url:"https://www.shibuya-scramble-square.com/sky/" },
     { id:1, img:"https://picsum.photos/id/20/400/300", en:{ name:"Shibuya Scramble & Hachiko", short:"World's busiest crossing. Hachiko statue, meeting point." }, it:{ name:"Incrocio Shibuya & Hachiko", short:"L'incrocio più trafficato del mondo. Statua di Hachiko." }, ru:{ name:"Переход Сибуя и Хатико", short:"Самый оживлённый переход в мире. Статуя Хатико." }, ja:{ name:"渋谷スクランブル交差点", short:"世界一混雑する交差点。待ち合わせに人気のハチ公像。" }, url:"https://www.gotokyo.org/jp/spot/74/index.html" },
     { id:2, img:"https://picsum.photos/id/96/400/300", en:{ name:"MIYASHITA PARK", short:"Rooftop park with skateboarding, beach volleyball, trendy shops. Open 24h." }, it:{ name:"MIYASHITA PARK", short:"Parco sul tetto con skateboard, beach volley, negozi alla moda. Aperto 24h." }, ru:{ name:"МИЯСИТА ПАРК", short:"Парк на крыше: скейтбординг, пляжный волейбол, модные магазины. Круглосуточно." }, ja:{ name:"MIYASHITA PARK", short:"屋上公園。スケボー、ビーチバレー、トレンドショップ。24時間開放。" }, url:"https://www.miyashita-park.tokyo/" },
@@ -491,6 +492,19 @@
     { id:11, img:"https://picsum.photos/id/58/400/300", en:{ name:"WOMB / ATOM TOKYO", short:"Legendary techno clubs. World-class sound system, international DJs." }, it:{ name:"WOMB / ATOM TOKYO", short:"Club techno leggendari. Sistema audio di livello mondiale, DJ internazionali." }, ru:{ name:"WOMB / ATOM TOKYO", short:"Легендарные техно-клубы. Аудиосистема мирового класса, международные диджеи." }, ja:{ name:"WOMB / ATOM TOKYO", short:"伝説のテクノクラブ。世界級サウンド、インターナショナルDJ。" }, url:"https://www.womb.co.jp/" }
   ];
 
+  // 原宿エリア 〜かわいい女の子に大人気の6スポット〜
+  const harajukuSpots = [
+    { id:12, img:"https://picsum.photos/id/6/400/300", en:{ name:"Takeshita Street", short:"Epicenter of Harajuku's kawaii culture. Colorful crepes, pop idols, quirky fashion." }, it:{ name:"Takeshita Street", short:"Epicentro della cultura kawaii di Harajuku. Crepes colorate, idol pop, moda stravagante." }, ru:{ name:"Улица Такэсита", short:"Эпицентр культуры каваи в Харадзюку. Яркие крепы, поп-идолы, причудливая мода." }, ja:{ name:"竹下通り", short:"原宿「カワイイ」文化の発信地。カラフルなクレープ、ポップアイドル、個性的ファッション。" }, url:"https://www.takeshita-street.com/" },
+    { id:13, img:"https://picsum.photos/id/29/400/300", en:{ name:"Laforet Harajuku", short:"Trendsetting fashion department store. Iconic 'Laforet Grand Bazaar' events." }, it:{ name:"Laforet Harajuku", short:"Grande magazzino di moda all'avanguardia. Iconici eventi 'Laforet Grand Bazaar'." }, ru:{ name:"Laforet Харадзюку", short:"Модный универмаг, задающий тренды. Легендарные распродажи 'Laforet Grand Bazaar'." }, ja:{ name:"ラフォーレ原宿", short:"トレンド発信のファッションビル。『ラフォーレグランバザール』が有名。" }, url:"https://www.laforet.ne.jp/" },
+    { id:14, img:"https://picsum.photos/id/30/400/300", en:{ name:"Tokyu Plaza Harajuku", short:"Mirror entrance, rooftop garden 'Omohara no Mori'. Kawaii culture & modern shops." }, it:{ name:"Tokyu Plaza Harajuku", short:"Ingresso a specchi, giardino pensile 'Omohara no Mori'. Cultura kawaii e negozi moderni." }, ru:{ name:"Tokyu Plaza Харадзюку", short:"Зеркальный вход, сад на крыше 'Омохара-но-мори'. Культура каваи." }, ja:{ name:"東急プラザ原宿", short:"鏡の入り口、屋上庭園『おもはらの森』。カワイイ文化とモダンショップ。" }, url:"https://omohara.tokyu-plaza.com/" },
+    { id:15, img:"https://picsum.photos/id/18/400/300", en:{ name:"KIDDY LAND", short:"Paradise for characters: Sanrio, Snoopy, Marvel, and more. 5 floors of kawaii goods." }, it:{ name:"KIDDY LAND", short:"Paradiso dei personaggi: Sanrio, Snoopy, Marvel e altro. 5 piani di articoli kawaii." }, ru:{ name:"KIDDY LAND", short:"Рай для персонажей: Sanrio, Snoopy, Marvel и другие. 5 этажей кавайных товаров." }, ja:{ name:"キデイランド", short:"サンリオ、スヌーピー、マーベルなど人気キャラグッズ専門店。5フロア。" }, url:"https://www.kiddyland.co.jp/" },
+    { id:16, img:"https://picsum.photos/id/21/400/300", en:{ name:"Omotesando Hills", short:"Elegant shopping complex with luxury brands, designed by Tadao Ando." }, it:{ name:"Omotesando Hills", short:"Complesso commerciale elegante con marchi di lusso, progettato da Tadao Ando." }, ru:{ name:"Омотэсандо Хиллз", short:"Элегантный торговый комплекс с люксовыми брендами, спроектированный Тадао Андо." }, ja:{ name:"表参道ヒルズ", short:"安藤忠雄設計のラグジュアリー＆カルチャー複合施設。洗練された空間。" }, url:"https://www.omotesandohills.com/" },
+    { id:17, img:"https://picsum.photos/id/47/400/300", en:{ name:"Yoyogi Park", short:"Huge green space for picnics, festivals, and people-watching. Meiji Shrine adjacent." }, it:{ name:"Yoyogi Park", short:"Grande area verde per picnic, festival e osservazione della gente. Adiacente al Santuario Meiji." }, ru:{ name:"Парк Йойоги", short:"Огромная зеленая зона для пикников, фестивалей. Рядом святилище Мэйдзи." }, ja:{ name:"代々木公園", short:"ピクニックやイベントで賑わう都内最大級の公園。明治神宮に隣接。" }, url:"https://www.tokyo-park.or.jp/park/yoyogi/" }
+  ];
+
+  // 統合: 渋谷12 + 原宿6 = 計18スポット → 3スライド (1スライド=6カード)
+  const spotsData = [...shibuyaSpots, ...harajukuSpots];
+
   let currentLang = "en";
   let currentDetailId = null;
   const mainPage = document.getElementById("main-page");
@@ -503,109 +517,57 @@
   const themeToggle = document.getElementById("themeToggle");
   const railLinesDiv = document.getElementById("railLines");
 
-  let totalSlides = Math.ceil(spotsData.length / 6);
+  const totalSlides = 3;        // 18/6 = 3
+  let isCycling = false;        // 循環処理中フラグ
 
-  // ========== すべてのカードの高さを完全に揃える (全スライド共通の最大高さ) ==========
+  // 高さ均等化 (全カード)
   function normalizeAllCardHeights() {
-    // 全実カード（ダミー除外）を取得
     const allCards = Array.from(document.querySelectorAll('.spot-card:not(.dummy-card)'));
     if (allCards.length === 0) return;
-
-    // いったん高さリセット (auto)
-    allCards.forEach(card => {
-      card.style.height = 'auto';
-    });
-    // 強制的にリフロー
+    allCards.forEach(card => card.style.height = 'auto');
     void document.body.offsetHeight;
-
-    // 最大高さを計算
     let maxHeight = 0;
-    allCards.forEach(card => {
-      const h = card.offsetHeight;
-      if (h > maxHeight) maxHeight = h;
-    });
+    allCards.forEach(card => { const h = card.offsetHeight; if (h > maxHeight) maxHeight = h; });
     if (maxHeight === 0) return;
-
-    // 全カード（ダミーも含む）に同じ高さを設定 → 全てのスライドの高さが完璧に統一される
-    const allCardsInclDummy = document.querySelectorAll('.spot-card');
-    allCardsInclDummy.forEach(card => {
-      card.style.height = `${maxHeight}px`;
-    });
+    document.querySelectorAll('.spot-card').forEach(card => card.style.height = `${maxHeight}px`);
   }
 
-  // 画像完全ロード後に再調整 (より堅牢)
   function waitForImagesAndEqualize() {
     const images = document.querySelectorAll('.spot-card img');
-    if (images.length === 0) {
-      normalizeAllCardHeights();
-      return;
-    }
+    if (images.length === 0) { normalizeAllCardHeights(); return; }
     let loadedCount = 0;
-    const totalImages = images.length;
-    const onImageLoad = () => {
-      loadedCount++;
-      if (loadedCount === totalImages) {
-        setTimeout(() => normalizeAllCardHeights(), 50);
-      }
-    };
+    const total = images.length;
+    const onLoad = () => { loadedCount++; if (loadedCount === total) setTimeout(normalizeAllCardHeights, 50); };
     images.forEach(img => {
-      if (img.complete) {
-        onImageLoad();
-      } else {
-        img.addEventListener('load', onImageLoad, { once: true });
-        img.addEventListener('error', onImageLoad, { once: true });
-      }
+      if (img.complete) onLoad();
+      else { img.addEventListener('load', onLoad, { once: true }); img.addEventListener('error', onLoad, { once: true }); }
     });
-    // タイムアウトでも実行 (保険)
-    setTimeout(() => {
-      if (loadedCount !== totalImages) normalizeAllCardHeights();
-    }, 300);
+    setTimeout(() => { if (loadedCount !== total) normalizeAllCardHeights(); }, 400);
   }
 
-  // ダミーカードを追加し、各スライドのカード数を6枚に統一 (行数を完全一致させる)
-  function addDummyCardsToSlides() {
-    const slides = document.querySelectorAll('.slide');
-    slides.forEach(slide => {
-      const grid = slide.querySelector('.spots-grid');
-      if (!grid) return;
-      let cards = grid.querySelectorAll('.spot-card');
-      const currentCount = cards.length;
-      if (currentCount < 6) {
-        const needed = 6 - currentCount;
-        for (let i = 0; i < needed; i++) {
-          const dummyCard = document.createElement('div');
-          dummyCard.className = 'spot-card dummy-card';
-          // 非表示でも構造は維持し、高さ調整に参加させるため中に空のinfoを入れる
-          dummyCard.innerHTML = `
-            <div class="spot-info" style="opacity:0; visibility:hidden;">
-              <h3 style="min-height: 24px;">&nbsp;</h3>
-              <p>&nbsp;</p>
-            </div>
-          `;
-          dummyCard.style.cursor = 'default';
-          grid.appendChild(dummyCard);
-        }
-      }
-    });
-    // ダミー追加後すぐに高さ調整を呼ぶ準備
+  function addDummyCardsToSlide(grid, currentCount) {
+    const needed = 6 - currentCount;
+    for (let i = 0; i < needed; i++) {
+      const dummy = document.createElement('div');
+      dummy.className = 'spot-card dummy-card';
+      dummy.innerHTML = `<div class="spot-info" style="opacity:0; visibility:hidden;"><h3>&nbsp;</h3><p>&nbsp;</p></div>`;
+      dummy.style.cursor = 'default';
+      grid.appendChild(dummy);
+    }
   }
 
-  // スライド構築 (カード枚数6の倍数になるようにし、ダミー追加)
   function buildSlides() {
     slidesContainer.innerHTML = "";
-    const totalItems = spotsData.length;
-    const cardsPerSlide = 6;
-    const slideCount = Math.ceil(totalItems / cardsPerSlide);
-    
-    for (let i = 0; i < slideCount; i++) {
+    const itemsPerSlide = 6;
+    for (let slideIdx = 0; slideIdx < totalSlides; slideIdx++) {
       const slide = document.createElement("div");
       slide.className = "slide";
       const grid = document.createElement("div");
       grid.className = "spots-grid";
-      const start = i * cardsPerSlide;
-      const end = Math.min(start + cardsPerSlide, totalItems);
-      for (let j = start; j < end; j++) {
-        const spot = spotsData[j];
+      const start = slideIdx * itemsPerSlide;
+      const end = Math.min(start + itemsPerSlide, spotsData.length);
+      for (let i = start; i < end; i++) {
+        const spot = spotsData[i];
         const card = document.createElement("div");
         card.className = "spot-card";
         card.onclick = () => showDetail(spot.id);
@@ -618,41 +580,67 @@
         `;
         grid.appendChild(card);
       }
+      // 足りない分ダミー追加
+      if (grid.children.length < 6) addDummyCardsToSlide(grid, grid.children.length);
       slide.appendChild(grid);
       slidesContainer.appendChild(slide);
     }
-    // すべてのスライドにダミーを追加してカード数を6に統一
-    addDummyCardsToSlides();
     updateDots();
-    // 高さ調整（画像ロード後）
     waitForImagesAndEqualize();
   }
 
   function updateDots() {
-    const activeIndex = Math.round(swipeContainer.scrollLeft / swipeContainer.clientWidth);
+    if (!swipeContainer) return;
+    const scrollPos = swipeContainer.scrollLeft;
+    const slideWidth = swipeContainer.clientWidth;
+    let activeIndex = Math.round(scrollPos / slideWidth);
+    if (isNaN(activeIndex)) activeIndex = 0;
+    activeIndex = Math.min(totalSlides - 1, Math.max(0, activeIndex));
     dotsContainer.innerHTML = "";
-    const total = document.querySelectorAll('.slide').length;
-    for (let i = 0; i < total; i++) {
+    for (let i = 0; i < totalSlides; i++) {
       const dot = document.createElement("div");
       dot.className = "dot" + (i === activeIndex ? " active" : "");
+      dot.addEventListener("click", () => {
+        if (isCycling) return;
+        swipeContainer.scrollTo({ left: i * swipeContainer.clientWidth, behavior: "smooth" });
+      });
       dotsContainer.appendChild(dot);
     }
   }
 
+  // 循環スクロール (エッジ検出)
+  function handleCarouselLoop() {
+    if (isCycling) return;
+    const scrollLeft = swipeContainer.scrollLeft;
+    const maxScroll = swipeContainer.scrollWidth - swipeContainer.clientWidth;
+    const threshold = 30; // 感度
+    if (scrollLeft <= threshold) {
+      // 左端 → 最終スライドへジャンプ
+      isCycling = true;
+      swipeContainer.scrollLeft = maxScroll - threshold;
+      setTimeout(() => { isCycling = false; updateDots(); }, 150);
+    } else if (scrollLeft >= maxScroll - threshold) {
+      // 右端 → 最初へジャンプ
+      isCycling = true;
+      swipeContainer.scrollLeft = threshold;
+      setTimeout(() => { isCycling = false; updateDots(); }, 150);
+    }
+  }
+
+  // スクロール監視
+  let loopTimeout;
   swipeContainer.addEventListener("scroll", () => {
-    clearTimeout(window._dotTimer);
-    window._dotTimer = setTimeout(updateDots, 100);
-  });
-  
-  window.addEventListener("resize", () => {
-    setTimeout(() => {
+    clearTimeout(loopTimeout);
+    loopTimeout = setTimeout(() => {
+      handleCarouselLoop();
       updateDots();
-      // リサイズ時も高さ再調整（レイアウト変化対応）
-      waitForImagesAndEqualize();
-    }, 150);
+    }, 80);
+    updateDots();
+  });
+  window.addEventListener("resize", () => {
+    setTimeout(() => { updateDots(); waitForImagesAndEqualize(); }, 150);
   });
 
-  // 詳細表示
   function showDetail(id) {
     currentDetailId = id;
     mainPage.classList.add("hidden");
@@ -664,14 +652,14 @@
   function renderDetailPage(id) {
     const spot = spotsData.find(s => s.id === id);
     if (!spot) return;
-    const detailText = spot[currentLang].short; // 詳細はショートで代用（要望に応じて拡張可）
     const name = spot[currentLang].name;
+    const desc = spot[currentLang].short;
     document.getElementById("detailContent").innerHTML = `
       <div class="detail-card">
         <img src="${spot.img}" alt="${name}">
         <div class="detail-content">
           <h2>${name}</h2>
-          <div class="detail-desc">${detailText}</div>
+          <div class="detail-desc">${desc}</div>
           <a href="${spot.url}" target="_blank" rel="noopener" class="official-link">
             <i class="fas fa-external-link-alt"></i> ${currentLang === 'ja' ? '公式サイトへ' : 'Official Website'}
           </a>
@@ -689,22 +677,18 @@
   backBtn.onclick = goBackToMain;
   window.addEventListener("popstate", () => { if (!mainPage.classList.contains("hidden")) return; goBackToMain(); });
 
-  // スポンサー表示
   function renderSponsors() {
     if (typeof sponsorConfig === 'undefined') return;
     const topContainer = document.getElementById("sponsorTopContainer");
     const bottomContainer = document.getElementById("sponsorBottomContainer");
-    function createLink(config) {
-      if (config && config.imageUrl && config.linkUrl) {
-        return `<a href="${config.linkUrl}" target="_blank" class="sponsor-link"><img src="${config.imageUrl}" alt="${config.altText || 'sponsor'}"></a>`;
-      }
-      return `<span class="sponsor-link" style="cursor:default;"><i class="fas fa-ad"></i> ${config?.defaultText || 'Advertisement'}</span>`;
-    }
+    const createLink = (cfg) => {
+      if (cfg && cfg.imageUrl && cfg.linkUrl) return `<a href="${cfg.linkUrl}" target="_blank" class="sponsor-link"><img src="${cfg.imageUrl}" alt="${cfg.altText || 'sponsor'}"></a>`;
+      return `<span class="sponsor-link" style="cursor:default;"><i class="fas fa-ad"></i> ${cfg?.defaultText || 'Advertisement'}</span>`;
+    };
     if (topContainer) topContainer.innerHTML = createLink(sponsorConfig.top);
     if (bottomContainer) bottomContainer.innerHTML = createLink(sponsorConfig.bottom);
   }
 
-  // 言語更新
   function updateLanguage() {
     const t = translations[currentLang];
     document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -712,19 +696,12 @@
       if (t[key]) el.innerText = t[key];
     });
     railLinesDiv.innerHTML = "";
-    t.rail_lines.forEach(line => {
-      const badge = document.createElement("span");
-      badge.className = "rail-badge";
-      badge.innerText = line;
-      railLinesDiv.appendChild(badge);
-    });
-    // 再構築してテキスト刷新
-    buildSlides();
+    t.rail_lines.forEach(line => { const badge = document.createElement("span"); badge.className = "rail-badge"; badge.innerText = line; railLinesDiv.appendChild(badge); });
+    buildSlides(); // 完全再構築
     if (currentDetailId !== null) renderDetailPage(currentDetailId);
     renderSponsors();
   }
 
-  // テーマ初期化
   function initTheme() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
@@ -736,23 +713,13 @@
     localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
   });
   initTheme();
-  
-  langSwitcher.addEventListener("change", (e) => { 
-    currentLang = e.target.value; 
-    updateLanguage(); 
-  });
-  
-  // 初期構築
+  langSwitcher.addEventListener("change", (e) => { currentLang = e.target.value; updateLanguage(); });
+
   buildSlides();
   renderSponsors();
   updateLanguage();
-  
-  // 最後に安全のため load 時も高さ調整
-  window.addEventListener('load', () => {
-    waitForImagesAndEqualize();
-  });
+  window.addEventListener('load', () => { waitForImagesAndEqualize(); setTimeout(() => swipeContainer.scrollLeft = 0, 10); });
 
-  // Service Worker (PWA)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered', reg)).catch(err => console.log('SW error', err));
