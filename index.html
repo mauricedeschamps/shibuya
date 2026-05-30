@@ -193,11 +193,8 @@
     .spot-info p {
       color: var(--text-secondary);
       font-size: 0.85rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      line-height: 1.4;
+      /* 説明文の長さで高さが変わるが、JSで調整するので制限しない */
     }
     @media (max-width: 1100px) {
       .spots-grid { grid-template-columns: repeat(3, 1fr); }
@@ -238,7 +235,7 @@
       height: 100%;
       border: 0;
     }
-    /* スポンサー枠 - オレンジ楕円なし・シンプルデザイン */
+    /* スポンサー枠 - シンプル、オレンジ色なし、画像大きく */
     .sponsor {
       background: var(--bg-secondary);
       border-radius: 24px;
@@ -256,7 +253,7 @@
       transition: opacity 0.2s;
     }
     .sponsor-link img {
-      max-height: 80px;  /* より大きく表示 */
+      max-height: 80px;
       width: auto;
       border-radius: 12px;
       object-fit: contain;
@@ -458,20 +455,20 @@
     }
   };
 
-  // スポットデータ（12件）
+  // スポットデータ（12件） - 各言語の説明文の長さは異なるが、JSで高さを揃える
   const spotsData = [
-    { id:0, img:"https://picsum.photos/id/104/400/300", en:{ name:"SHIBUYA SKY", short:"Panoramic views", detail:"360-degree open-air deck. Night light show spectacular." }, it:{ name:"SHIBUYA SKY", short:"Viste panoramiche", detail:"Terrazza panoramica 360°, spettacolo di luci notturno." }, ru:{ name:"SHIBUYA SKY", short:"Панорамный вид", detail:"Открытая смотровая площадка 360°, ночное световое шоу." }, ja:{ name:"SHIBUYA SKY", short:"絶景展望台", detail:"屋上展望台。夜景ライトショーが圧巻。" }, url:"https://www.shibuya-scramble-square.com/sky/" },
-    { id:1, img:"https://picsum.photos/id/20/400/300", en:{ name:"Shibuya Scramble & Hachiko", short:"Famous crossing", detail:"Busiest pedestrian crossing in the world. Hachiko statue." }, it:{ name:"Incrocio Shibuya & Hachiko", short:"Incrocio famoso", detail:"Incrocio più affollato del mondo. Statua di Hachiko." }, ru:{ name:"Переход Сибуя и Хатико", short:"Известный переход", detail:"Самый оживлённый переход в мире. Статуя Хатико." }, ja:{ name:"渋谷スクランブル交差点", short:"世界一の交差点", detail:"世界で最も混雑する交差点。忠犬ハチ公像。" }, url:"https://www.gotokyo.org/jp/spot/74/index.html" },
-    { id:2, img:"https://picsum.photos/id/96/400/300", en:{ name:"MIYASHITA PARK", short:"Rooftop park", detail:"Skateboarding, beach volleyball, trendy shops. Open 24h." }, it:{ name:"MIYASHITA PARK", short:"Parco sul tetto", detail:"Area skate, beach volley, negozi alla moda. Aperto 24 ore." }, ru:{ name:"МИЯСИТА ПАРК", short:"Парк на крыше", detail:"Скейтбординг, пляжный волейбол, модные магазины. Круглосуточно." }, ja:{ name:"MIYASHITA PARK", short:"屋上公園", detail:"スケートボード、ビーチバレー、トレンドショップ。24時間開放。" }, url:"https://www.miyashita-park.tokyo/" },
-    { id:3, img:"https://picsum.photos/id/26/400/300", en:{ name:"Shibuya PARCO", short:"Art & Nintendo", detail:"Nintendo TOKYO, Pokémon Center, art gallery." }, it:{ name:"Shibuya PARCO", short:"Arte e Nintendo", detail:"Nintendo TOKYO, Pokémon Center, galleria d'arte." }, ru:{ name:"Сибуя ПАРКО", short:"Искусство и Nintendo", detail:"Nintendo TOKYO, Pokémon Center, художественная галерея." }, ja:{ name:"渋谷PARCO", short:"アート＆任天堂", detail:"Nintendo TOKYO、ポケモンセンター、アートギャラリー。" }, url:"https://shibuya.parco.jp/" },
-    { id:4, img:"https://picsum.photos/id/91/400/300", en:{ name:"Nintendo TOKYO", short:"Official store", detail:"Largest Nintendo store in Japan. Exclusive merch." }, it:{ name:"Nintendo TOKYO", short:"Negozio ufficiale", detail:"Il più grande negozio Nintendo in Giappone. Merchandising esclusivo." }, ru:{ name:"Nintendo TOKYO", short:"Официальный магазин", detail:"Крупнейший магазин Nintendo в Японии. Эксклюзивные товары." }, ja:{ name:"Nintendo TOKYO", short:"任天堂公式店", detail:"日本最大の任天堂ストア。限定グッズ。" }, url:"https://www.nintendo.co.jp/store/" },
-    { id:5, img:"https://picsum.photos/id/169/400/300", en:{ name:"SHIBUYA109", short:"Iconic fashion", detail:"10 floors of trendy fashion. Birthplace of 'gal' culture." }, it:{ name:"SHIBUYA109", short:"Moda iconica", detail:"10 piani di moda giovanile. Culla della cultura 'gal'." }, ru:{ name:"SHIBUYA109", short:"Легендарная мода", detail:"10 этажей модной одежды. Родина культуры 'гал'." }, ja:{ name:"SHIBUYA109", short:"ファッションの聖地", detail:"10フロアのトレンドファッション。ギャル文化発祥の地。" }, url:"https://www.shibuya109.jp/" },
-    { id:6, img:"https://picsum.photos/id/155/400/300", en:{ name:"Center Gai", short:"Nightlife hub", detail:"Izakayas, game centers, karaoke. Epicenter of Shibuya nightlife." }, it:{ name:"Center Gai", short:"Vita notturna", detail:"Izakaya, centri giochi, karaoke. Epicentro della vita notturna di Shibuya." }, ru:{ name:"Центр Гай", short:"Ночная жизнь", detail:"Идзакая, игровые центры, караоке. Эпицентр ночной жизни Сибуи." }, ja:{ name:"センター街", short:"夜の中心地", detail:"居酒屋、ゲームセンター、カラオケ。渋谷の夜の中心地。" }, url:"https://www.shibuyabunka.jp/spot/detail/24" },
-    { id:7, img:"https://picsum.photos/id/42/400/300", en:{ name:"Tower Records", short:"Giant music store", detail:"9 floors of CDs, vinyl, DVDs. Live events." }, it:{ name:"Tower Records", short:"Negozio di musica", detail:"9 piani di CD, vinili, DVD. Eventi dal vivo." }, ru:{ name:"Tower Records", short:"Музыкальный магазин", detail:"9 этажей CD, винилов, DVD. Живые выступления." }, ja:{ name:"タワーレコード", short:"巨大音楽ショップ", detail:"CD・レコード・DVDが9フロア。ライブイベントも。" }, url:"https://tower.jp/store/710" },
-    { id:8, img:"https://picsum.photos/id/15/400/300", en:{ name:"Cat Street", short:"Trendy street", detail:"Connects Harajuku to Shibuya. Vintage shops, cafes." }, it:{ name:"Cat Street", short:"Via alla moda", detail:"Collega Harajuku a Shibuya. Negozi vintage, caffè." }, ru:{ name:"Кэт-Стрит", short:"Модная улица", detail:"Соединяет Харадзюку и Сибуя. Винтажные магазины, кафе." }, ja:{ name:"キャットストリート", short:"おしゃれな通り", detail:"原宿〜渋谷を結ぶ。ヴィンテージショップ、カフェ。" }, url:"https://www.cat-street.jp/" },
-    { id:9, img:"https://picsum.photos/id/117/400/300", en:{ name:"Bunkamura", short:"Culture complex", detail:"Concert hall, theatre, museum. Rotating art exhibitions." }, it:{ name:"Bunkamura", short:"Complesso culturale", detail:"Sala concerti, teatro, museo. Mostre d'arte temporanee." }, ru:{ name:"Бункамура", short:"Культурный центр", detail:"Концертный зал, театр, музей. Сменные художественные выставки." }, ja:{ name:"Bunkamura", short:"文化複合施設", detail:"コンサートホール、シアター、美術館。企画展も。" }, url:"https://www.bunkamura.co.jp/" },
-    { id:10, img:"https://picsum.photos/id/12/400/300", en:{ name:"Chatei Hatou", short:"Vintage coffee", detail:"Siphon coffee, handmade cakes. Retro Showa atmosphere." }, it:{ name:"Chatei Hatou", short:"Caffè d'epoca", detail:"Caffè a sifone, torte fatte in casa. Atmosfera retrò Showa." }, ru:{ name:"Chatei Hatou", short:"Винтажное кафе", detail:"Кофе-сифон, домашние торты. Ретро-атмосфера эпохи Сёва." }, ja:{ name:"茶亭 羽當", short:"レトロ喫茶", detail:"サイフォンコーヒーと手作りケーキ。昭和レトロな空間。" }, url:"https://tabelog.com/tokyo/A1303/A130301/13002361/" },
-    { id:11, img:"https://picsum.photos/id/58/400/300", en:{ name:"WOMB", short:"Nightclub", detail:"World-class sound system. Techno and electronic music." }, it:{ name:"WOMB", short:"Discoteca", detail:"Sistema audio di livello mondiale. Musica techno ed elettronica." }, ru:{ name:"WOMB", short:"Ночной клуб", detail:"Аудиосистема мирового класса. Техно и электронная музыка." }, ja:{ name:"WOMB", short:"クラブ", detail:"世界級のサウンドシステム。テクノ・エレクトロミュージック。" }, url:"https://www.womb.co.jp/" }
+    { id:0, img:"https://picsum.photos/id/104/400/300", en:{ name:"SHIBUYA SKY", short:"Panoramic views from 229m. Open-air deck, mirrored corners, night light show." }, it:{ name:"SHIBUYA SKY", short:"Viste panoramiche da 229m. Terrazza all'aperto, spettacolo di luci notturno." }, ru:{ name:"SHIBUYA SKY", short:"Панорамный вид с 229 м. Открытая терраса, ночное световое шоу." }, ja:{ name:"SHIBUYA SKY", short:"地上229mからの絶景。屋外展望台、鏡のコーナー、夜景ライトショー。" }, url:"https://www.shibuya-scramble-square.com/sky/" },
+    { id:1, img:"https://picsum.photos/id/20/400/300", en:{ name:"Shibuya Scramble & Hachiko", short:"World's busiest crossing. Hachiko statue, meeting point." }, it:{ name:"Incrocio Shibuya & Hachiko", short:"L'incrocio più trafficato del mondo. Statua di Hachiko." }, ru:{ name:"Переход Сибуя и Хатико", short:"Самый оживлённый переход в мире. Статуя Хатико." }, ja:{ name:"渋谷スクランブル交差点", short:"世界一混雑する交差点。待ち合わせに人気のハチ公像。" }, url:"https://www.gotokyo.org/jp/spot/74/index.html" },
+    { id:2, img:"https://picsum.photos/id/96/400/300", en:{ name:"MIYASHITA PARK", short:"Rooftop park with skateboarding, beach volleyball, trendy shops. Open 24h." }, it:{ name:"MIYASHITA PARK", short:"Parco sul tetto con skateboard, beach volley, negozi alla moda. Aperto 24h." }, ru:{ name:"МИЯСИТА ПАРК", short:"Парк на крыше: скейтбординг, пляжный волейбол, модные магазины. Круглосуточно." }, ja:{ name:"MIYASHITA PARK", short:"屋上公園。スケボー、ビーチバレー、トレンドショップ。24時間開放。" }, url:"https://www.miyashita-park.tokyo/" },
+    { id:3, img:"https://picsum.photos/id/26/400/300", en:{ name:"Shibuya PARCO", short:"Nintendo TOKYO, Pokémon Center, art gallery, trendy fashion." }, it:{ name:"Shibuya PARCO", short:"Nintendo TOKYO, Pokémon Center, galleria d'arte, moda." }, ru:{ name:"Сибуя ПАРКО", short:"Nintendo TOKYO, Pokémon Center, художественная галерея, мода." }, ja:{ name:"渋谷PARCO", short:"Nintendo TOKYO、ポケモンセンター、アートギャラリー、ファッション。" }, url:"https://shibuya.parco.jp/" },
+    { id:4, img:"https://picsum.photos/id/91/400/300", en:{ name:"Nintendo TOKYO", short:"Japan's largest Nintendo store. Exclusive merch, life-size statues." }, it:{ name:"Nintendo TOKYO", short:"Il più grande negozio Nintendo del Giappone. Statue a grandezza naturale." }, ru:{ name:"Nintendo TOKYO", short:"Крупнейший магазин Nintendo в Японии. Эксклюзивные товары." }, ja:{ name:"Nintendo TOKYO", short:"日本最大の任天堂ストア。限定グッズ、等身大フィギュア。" }, url:"https://www.nintendo.co.jp/store/" },
+    { id:5, img:"https://picsum.photos/id/169/400/300", en:{ name:"SHIBUYA109", short:"Iconic fashion building, birthplace of 'gal' culture. 10 floors of trends." }, it:{ name:"SHIBUYA109", short:"Edificio moda iconico, culla della cultura 'gal'. 10 piani." }, ru:{ name:"SHIBUYA109", short:"Легендарное здание моды, родина культуры 'гал'. 10 этажей." }, ja:{ name:"SHIBUYA109", short:"ファッションの聖地、ギャル文化発祥。10フロアのトレンド。" }, url:"https://www.shibuya109.jp/" },
+    { id:6, img:"https://picsum.photos/id/155/400/300", en:{ name:"Center Gai", short:"Pedestrian street with izakayas, game centers, karaoke. Nightlife epicenter." }, it:{ name:"Center Gai", short:"Via pedonale con izakaya, centri giochi, karaoke. Epicentro della vita notturna." }, ru:{ name:"Центр Гай", short:"Пешеходная улица с идзакая, игровыми центрами, караоке. Эпицентр ночной жизни." }, ja:{ name:"センター街", short:"居酒屋、ゲームセンター、カラオケが並ぶ歩行者天国。夜の中心地。" }, url:"https://www.shibuyabunka.jp/spot/detail/24" },
+    { id:7, img:"https://picsum.photos/id/42/400/300", en:{ name:"Tower Records Shibuya", short:"9 floors of CDs, vinyl, DVDs. Regular live events." }, it:{ name:"Tower Records Shibuya", short:"9 piani di CD, vinili, DVD. Eventi dal vivo regolari." }, ru:{ name:"Tower Records Сибуя", short:"9 этажей CD, винилов, DVD. Регулярные живые выступления." }, ja:{ name:"タワーレコード渋谷店", short:"CD・レコード・DVDが9フロア。ライブイベントも頻繁に。" }, url:"https://tower.jp/store/710" },
+    { id:8, img:"https://picsum.photos/id/15/400/300", en:{ name:"Cat Street", short:"Pedestrian path connecting Harajuku & Shibuya. Vintage shops, stylish cafes." }, it:{ name:"Cat Street", short:"Percorso pedonale che collega Harajuku e Shibuya. Negozi vintage, caffè alla moda." }, ru:{ name:"Кэт-Стрит", short:"Пешеходная дорожка между Харадзюку и Сибуей. Винтажные магазины, стильные кафе." }, ja:{ name:"キャットストリート", short:"原宿〜渋谷を結ぶ散策路。ヴィンテージショップ、おしゃれなカフェ。" }, url:"https://www.cat-street.jp/" },
+    { id:9, img:"https://picsum.photos/id/117/400/300", en:{ name:"Bunkamura", short:"Concert hall, theatre, museum. Rotating art exhibitions." }, it:{ name:"Bunkamura", short:"Sala concerti, teatro, museo. Mostre d'arte temporanee." }, ru:{ name:"Бункамура", short:"Концертный зал, театр, музей. Сменные художественные выставки." }, ja:{ name:"Bunkamura", short:"コンサートホール、シアター、美術館。企画展も。" }, url:"https://www.bunkamura.co.jp/" },
+    { id:10, img:"https://picsum.photos/id/12/400/300", en:{ name:"Chatei Hatou", short:"Vintage kissaten (old coffee shop). Siphon coffee, handmade cakes, Showa retro." }, it:{ name:"Chatei Hatou", short:"Antico caffè giapponese. Caffè a sifone, torte fatte in casa, atmosfera retrò Showa." }, ru:{ name:"Chatei Hatou", short:"Винтажная кофейня. Кофе-сифон, домашние торты, ретро-атмосфера Сёва." }, ja:{ name:"茶亭 羽當", short:"レトロな名曲喫茶。サイフォンコーヒーと手作りケーキ、昭和の空間。" }, url:"https://tabelog.com/tokyo/A1303/A130301/13002361/" },
+    { id:11, img:"https://picsum.photos/id/58/400/300", en:{ name:"WOMB / ATOM TOKYO", short:"Legendary techno clubs. World-class sound system, international DJs." }, it:{ name:"WOMB / ATOM TOKYO", short:"Club techno leggendari. Sistema audio di livello mondiale, DJ internazionali." }, ru:{ name:"WOMB / ATOM TOKYO", short:"Легендарные техно-клубы. Аудиосистема мирового класса, международные диджеи." }, ja:{ name:"WOMB / ATOM TOKYO", short:"伝説のテクノクラブ。世界級サウンド、インターナショナルDJ。" }, url:"https://www.womb.co.jp/" }
   ];
 
   let currentLang = "en";
@@ -488,24 +485,53 @@
 
   let totalSlides = Math.ceil(spotsData.length / 6);
 
-  // カードの高さを揃える関数（各スライドごとに全てのカードの高さを最大値に統一）
-  function equalizeCardHeights() {
-    // 各スライド内のすべての .spot-card を取得
+  // 高さ調整関数：各スライド内の全カードの高さを最大値に統一
+  function equalizeHeights() {
+    // 全てのスライドを走査
     const slides = document.querySelectorAll('.slide');
     slides.forEach(slide => {
       const cards = slide.querySelectorAll('.spot-card');
       if (cards.length === 0) return;
-      // 一旦高さをautoにリセット
+      // 一旦高さをautoにリセット（ブラウザに自然な高さを計算させる）
       cards.forEach(card => card.style.height = 'auto');
-      // 最大高さを計算
+      // 最大高さを取得
       let maxHeight = 0;
       cards.forEach(card => {
-        const height = card.offsetHeight;
-        if (height > maxHeight) maxHeight = height;
+        const h = card.offsetHeight;
+        if (h > maxHeight) maxHeight = h;
       });
-      // すべてのカードに最大高さを設定
-      cards.forEach(card => card.style.height = `${maxHeight}px`);
+      // 同じ高さを設定（最小でも余裕を持たせるため少し余白を追加）
+      if (maxHeight > 0) {
+        cards.forEach(card => card.style.height = `${maxHeight}px`);
+      }
     });
+  }
+
+  // 確実に高さ調整を行う（画像読み込み待ち含む）
+  function safeEqualize() {
+    // 少し遅延させてDOMのレンダリングを待つ
+    setTimeout(() => {
+      equalizeHeights();
+    }, 50);
+    // さらに画像が完全に読み込まれた後にもう一度
+    if (document.images) {
+      let imagesLoaded = 0;
+      const totalImages = document.images.length;
+      if (totalImages === 0) {
+        equalizeHeights();
+        return;
+      }
+      const imgLoadHandler = () => {
+        imagesLoaded++;
+        if (imagesLoaded === totalImages) {
+          setTimeout(equalizeHeights, 30);
+        }
+      };
+      for (let i = 0; i < document.images.length; i++) {
+        if (document.images[i].complete) imgLoadHandler();
+        else document.images[i].addEventListener('load', imgLoadHandler);
+      }
+    }
   }
 
   function buildSlides() {
@@ -534,10 +560,8 @@
       slide.appendChild(grid);
       slidesContainer.appendChild(slide);
     }
-    // 高さの調整（画像読み込み完了まで少し待つ）
-    setTimeout(() => {
-      equalizeCardHeights();
-    }, 100);
+    // スライド構築後、高さ調整
+    safeEqualize();
     updateDots();
   }
 
@@ -558,7 +582,7 @@
   window.addEventListener("resize", () => {
     setTimeout(() => {
       updateDots();
-      equalizeCardHeights();
+      safeEqualize();
     }, 200);
   });
 
@@ -573,7 +597,7 @@
   function renderDetailPage(id) {
     const spot = spotsData.find(s => s.id === id);
     if (!spot) return;
-    const detailText = spot[currentLang].detail;
+    const detailText = spot[currentLang].detail || spot[currentLang].short;
     const name = spot[currentLang].name;
     document.getElementById("detailContent").innerHTML = `
       <div class="detail-card">
@@ -598,7 +622,7 @@
   backBtn.onclick = goBackToMain;
   window.addEventListener("popstate", () => { if (!mainPage.classList.contains("hidden")) return; goBackToMain(); });
 
-  // スポンサーを動的に生成（オレンジ楕円なし）
+  // スポンサー生成（オレンジの楕円なし、画像大きく）
   function renderSponsors() {
     const topContainer = document.getElementById("sponsorTopContainer");
     const bottomContainer = document.getElementById("sponsorBottomContainer");
@@ -633,7 +657,7 @@
       badge.innerText = line;
       railLinesDiv.appendChild(badge);
     });
-    buildSlides();
+    buildSlides(); // 再構築（新しい言語のテキストでカードを作り直す）
     if (currentDetailId !== null) renderDetailPage(currentDetailId);
     renderSponsors();
   }
@@ -654,11 +678,9 @@
   buildSlides();
   renderSponsors();
   updateLanguage();
-  setTimeout(updateDots, 100);
-
-  // 画像読み込み完了後に再度高さ調整
+  // ページ読み込み完了後も高さ再調整
   window.addEventListener('load', () => {
-    setTimeout(equalizeCardHeights, 300);
+    safeEqualize();
   });
 
   if ('serviceWorker' in navigator) {
