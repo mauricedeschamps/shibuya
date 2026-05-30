@@ -384,7 +384,7 @@
         <div class="sponsor-note">※ 画像・URLは sponsorConfig.js を編集</div>
       </div>
 
-      <!-- スワイプカルーセル (3スライド: 渋谷①, 渋谷②, 原宿) -->
+      <!-- スワイプカルーセル (3スライド: 渋谷①, 渋谷②, 原宿)  無限ループなし・端で停止 -->
       <div class="carousel-section">
         <div class="carousel-header">
           <h2 data-i18n="spots_title">✨ Hot Spots in Shibuya & Harajuku</h2>
@@ -517,8 +517,7 @@
   const themeToggle = document.getElementById("themeToggle");
   const railLinesDiv = document.getElementById("railLines");
 
-  const totalSlides = 3;        // 18/6 = 3
-  let isCycling = false;        // 循環処理中フラグ
+  const totalSlides = 3;        // 18/6 = 3 (無限ループなし)
 
   // 高さ均等化 (全カード)
   function normalizeAllCardHeights() {
@@ -594,49 +593,25 @@
     const scrollPos = swipeContainer.scrollLeft;
     const slideWidth = swipeContainer.clientWidth;
     let activeIndex = Math.round(scrollPos / slideWidth);
-    if (isNaN(activeIndex)) activeIndex = 0;
-    activeIndex = Math.min(totalSlides - 1, Math.max(0, activeIndex));
+    if (isNaN(activeIndex) || activeIndex < 0) activeIndex = 0;
+    if (activeIndex >= totalSlides) activeIndex = totalSlides - 1;
     dotsContainer.innerHTML = "";
     for (let i = 0; i < totalSlides; i++) {
       const dot = document.createElement("div");
       dot.className = "dot" + (i === activeIndex ? " active" : "");
       dot.addEventListener("click", () => {
-        if (isCycling) return;
         swipeContainer.scrollTo({ left: i * swipeContainer.clientWidth, behavior: "smooth" });
       });
       dotsContainer.appendChild(dot);
     }
   }
 
-  // 循環スクロール (エッジ検出)
-  function handleCarouselLoop() {
-    if (isCycling) return;
-    const scrollLeft = swipeContainer.scrollLeft;
-    const maxScroll = swipeContainer.scrollWidth - swipeContainer.clientWidth;
-    const threshold = 30; // 感度
-    if (scrollLeft <= threshold) {
-      // 左端 → 最終スライドへジャンプ
-      isCycling = true;
-      swipeContainer.scrollLeft = maxScroll - threshold;
-      setTimeout(() => { isCycling = false; updateDots(); }, 150);
-    } else if (scrollLeft >= maxScroll - threshold) {
-      // 右端 → 最初へジャンプ
-      isCycling = true;
-      swipeContainer.scrollLeft = threshold;
-      setTimeout(() => { isCycling = false; updateDots(); }, 150);
-    }
-  }
-
-  // スクロール監視
-  let loopTimeout;
+  // 無限ループ処理を完全に除去 (スクロールイベントでは単にドット更新のみ)
   swipeContainer.addEventListener("scroll", () => {
-    clearTimeout(loopTimeout);
-    loopTimeout = setTimeout(() => {
-      handleCarouselLoop();
-      updateDots();
-    }, 80);
-    updateDots();
+    clearTimeout(window._dotTimer);
+    window._dotTimer = setTimeout(updateDots, 80);
   });
+  
   window.addEventListener("resize", () => {
     setTimeout(() => { updateDots(); waitForImagesAndEqualize(); }, 150);
   });
