@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -16,13 +16,13 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
     body {
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-primary);
       color: var(--text-primary);
       line-height: 1.5;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
     :root {
       --bg-primary: #0a0a0a;
@@ -56,6 +56,11 @@
       border-bottom: 1px solid var(--border);
       padding: 1rem 0;
       width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background-color: var(--bg-secondary);
     }
     .header-content {
       display: flex;
@@ -90,6 +95,7 @@
       cursor: pointer;
       color: var(--text-primary);
       font-size: 0.85rem;
+      transition: all 0.2s;
     }
     button:hover, .lang-select:hover {
       background: var(--button-hover);
@@ -139,6 +145,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       cursor: grab;
+      border-radius: 24px;
     }
     .swipe-container:active {
       cursor: grabbing;
@@ -158,7 +165,7 @@
       gap: 1.5rem;
       align-items: start;
     }
-    /* カードのスタイル - 高さはJSで動的に設定される */
+    /* カードのスタイル - 高さはJSで均等化＋ダミーで行数を統一 */
     .spot-card {
       background: var(--bg-card);
       border-radius: 20px;
@@ -169,32 +176,42 @@
       display: flex;
       flex-direction: column;
       width: 100%;
+      height: auto;
     }
-    .spot-card:hover {
+    .spot-card:not(.dummy-card):hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    }
+    .dummy-card {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      cursor: default;
+      border-color: transparent;
+      background: transparent;
     }
     .spot-card img {
       width: 100%;
       height: 180px;
       object-fit: cover;
       flex-shrink: 0;
+      background: var(--bg-secondary);
     }
     .spot-info {
       padding: 1rem;
       flex: 1;
       display: flex;
       flex-direction: column;
+      gap: 0.5rem;
     }
     .spot-info h3 {
-      margin-bottom: 0.5rem;
       font-size: 1.1rem;
+      font-weight: 600;
     }
     .spot-info p {
       color: var(--text-secondary);
       font-size: 0.85rem;
       line-height: 1.4;
-      /* 説明文の長さで高さが変わるが、JSで調整するので制限しない */
     }
     @media (max-width: 1100px) {
       .spots-grid { grid-template-columns: repeat(3, 1fr); }
@@ -217,10 +234,11 @@
     }
     .rail-badge {
       background: var(--bg-primary);
-      padding: 0.3rem 0.8rem;
+      padding: 0.4rem 1rem;
       border-radius: 50px;
       font-size: 0.8rem;
       font-weight: 500;
+      border: 1px solid var(--border);
     }
     .map-container {
       margin: 2rem 0;
@@ -235,11 +253,10 @@
       height: 100%;
       border: 0;
     }
-    /* スポンサー枠 - シンプル、オレンジ色なし、画像大きく */
     .sponsor {
       background: var(--bg-secondary);
       border-radius: 24px;
-      padding: 1.2rem;
+      padding: 1rem;
       margin: 1.5rem 0;
       text-align: center;
       border: 1px solid var(--border);
@@ -247,6 +264,7 @@
     .sponsor-link {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.8rem;
       text-decoration: none;
       color: var(--text-primary);
@@ -255,16 +273,16 @@
     .sponsor-link img {
       max-height: 80px;
       width: auto;
-      border-radius: 12px;
+      border-radius: 16px;
       object-fit: contain;
     }
     .sponsor-link:hover {
-      opacity: 0.8;
+      opacity: 0.85;
     }
     .sponsor-note {
       font-size: 0.7rem;
       color: var(--text-secondary);
-      margin-top: 0.8rem;
+      margin-top: 0.6rem;
     }
     .detail-view {
       background: var(--bg-primary);
@@ -277,6 +295,7 @@
       overflow: hidden;
       max-width: 900px;
       margin: 0 auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
     .detail-card img {
       width: 100%;
@@ -303,6 +322,7 @@
       padding: 0.7rem 1.5rem;
       border-radius: 40px;
       text-decoration: none;
+      font-weight: 500;
     }
     .back-btn {
       background: var(--button-bg);
@@ -324,7 +344,7 @@
       display: none;
     }
     .swipe-container::-webkit-scrollbar {
-      height: 4px;
+      height: 5px;
     }
     .swipe-container::-webkit-scrollbar-track {
       background: var(--border);
@@ -336,7 +356,7 @@
     }
   </style>
 </head>
-<body class="dark">
+<body>
 <div id="app">
   <div id="main-page">
     <div class="app-header">
@@ -375,14 +395,14 @@
         </div>
       </div>
 
-      <!-- 交通アクセス情報 -->
+      <!-- アクセス情報 -->
       <div class="access-info">
         <h2><i class="fas fa-train"></i> <span data-i18n="access_title">Shibuya Station Access</span></h2>
         <p data-i18n="access_desc">JR・地下鉄・私鉄の各路線と駅番号</p>
         <div class="rail-list" id="railLines"></div>
       </div>
 
-      <!-- 地図（OpenStreetMap） -->
+      <!-- 地図 -->
       <div class="map-container">
         <iframe 
           title="Shibuya Station Map"
@@ -415,7 +435,7 @@
 
 <script src="sponsorConfig.js"></script>
 <script>
-  // ---------- 多言語辞書 ----------
+  // ======================= 多言語辞書 =======================
   const translations = {
     en: {
       spots_title: "✨ Hot Spots in Shibuya",
@@ -455,7 +475,7 @@
     }
   };
 
-  // スポットデータ（12件） - 各言語の説明文の長さは異なるが、JSで高さを揃える
+  // ======================= スポットデータ (12件) =======================
   const spotsData = [
     { id:0, img:"https://picsum.photos/id/104/400/300", en:{ name:"SHIBUYA SKY", short:"Panoramic views from 229m. Open-air deck, mirrored corners, night light show." }, it:{ name:"SHIBUYA SKY", short:"Viste panoramiche da 229m. Terrazza all'aperto, spettacolo di luci notturno." }, ru:{ name:"SHIBUYA SKY", short:"Панорамный вид с 229 м. Открытая терраса, ночное световое шоу." }, ja:{ name:"SHIBUYA SKY", short:"地上229mからの絶景。屋外展望台、鏡のコーナー、夜景ライトショー。" }, url:"https://www.shibuya-scramble-square.com/sky/" },
     { id:1, img:"https://picsum.photos/id/20/400/300", en:{ name:"Shibuya Scramble & Hachiko", short:"World's busiest crossing. Hachiko statue, meeting point." }, it:{ name:"Incrocio Shibuya & Hachiko", short:"L'incrocio più trafficato del mondo. Statua di Hachiko." }, ru:{ name:"Переход Сибуя и Хатико", short:"Самый оживлённый переход в мире. Статуя Хатико." }, ja:{ name:"渋谷スクランブル交差点", short:"世界一混雑する交差点。待ち合わせに人気のハチ公像。" }, url:"https://www.gotokyo.org/jp/spot/74/index.html" },
@@ -467,7 +487,7 @@
     { id:7, img:"https://picsum.photos/id/42/400/300", en:{ name:"Tower Records Shibuya", short:"9 floors of CDs, vinyl, DVDs. Regular live events." }, it:{ name:"Tower Records Shibuya", short:"9 piani di CD, vinili, DVD. Eventi dal vivo regolari." }, ru:{ name:"Tower Records Сибуя", short:"9 этажей CD, винилов, DVD. Регулярные живые выступления." }, ja:{ name:"タワーレコード渋谷店", short:"CD・レコード・DVDが9フロア。ライブイベントも頻繁に。" }, url:"https://tower.jp/store/710" },
     { id:8, img:"https://picsum.photos/id/15/400/300", en:{ name:"Cat Street", short:"Pedestrian path connecting Harajuku & Shibuya. Vintage shops, stylish cafes." }, it:{ name:"Cat Street", short:"Percorso pedonale che collega Harajuku e Shibuya. Negozi vintage, caffè alla moda." }, ru:{ name:"Кэт-Стрит", short:"Пешеходная дорожка между Харадзюку и Сибуей. Винтажные магазины, стильные кафе." }, ja:{ name:"キャットストリート", short:"原宿〜渋谷を結ぶ散策路。ヴィンテージショップ、おしゃれなカフェ。" }, url:"https://www.cat-street.jp/" },
     { id:9, img:"https://picsum.photos/id/117/400/300", en:{ name:"Bunkamura", short:"Concert hall, theatre, museum. Rotating art exhibitions." }, it:{ name:"Bunkamura", short:"Sala concerti, teatro, museo. Mostre d'arte temporanee." }, ru:{ name:"Бункамура", short:"Концертный зал, театр, музей. Сменные художественные выставки." }, ja:{ name:"Bunkamura", short:"コンサートホール、シアター、美術館。企画展も。" }, url:"https://www.bunkamura.co.jp/" },
-    { id:10, img:"https://picsum.photos/id/12/400/300", en:{ name:"Chatei Hatou", short:"Vintage kissaten (old coffee shop). Siphon coffee, handmade cakes, Showa retro." }, it:{ name:"Chatei Hatou", short:"Antico caffè giapponese. Caffè a sifone, torte fatte in casa, atmosfera retrò Showa." }, ru:{ name:"Chatei Hatou", short:"Винтажная кофейня. Кофе-сифон, домашние торты, ретро-атмосфера Сёва." }, ja:{ name:"茶亭 羽當", short:"レトロな名曲喫茶。サイフォンコーヒーと手作りケーキ、昭和の空間。" }, url:"https://tabelog.com/tokyo/A1303/A130301/13002361/" },
+    { id:10, img:"https://picsum.photos/id/12/400/300", en:{ name:"Chatei Hatou", short:"Vintage kissaten. Siphon coffee, handmade cakes, Showa retro." }, it:{ name:"Chatei Hatou", short:"Antico caffè giapponese. Caffè a sifone, torte fatte in casa, atmosfera retrò Showa." }, ru:{ name:"Chatei Hatou", short:"Винтажная кофейня. Кофе-сифон, домашние торты, ретро-атмосфера Сёва." }, ja:{ name:"茶亭 羽當", short:"レトロな名曲喫茶。サイフォンコーヒーと手作りケーキ、昭和の空間。" }, url:"https://tabelog.com/tokyo/A1303/A130301/13002361/" },
     { id:11, img:"https://picsum.photos/id/58/400/300", en:{ name:"WOMB / ATOM TOKYO", short:"Legendary techno clubs. World-class sound system, international DJs." }, it:{ name:"WOMB / ATOM TOKYO", short:"Club techno leggendari. Sistema audio di livello mondiale, DJ internazionali." }, ru:{ name:"WOMB / ATOM TOKYO", short:"Легендарные техно-клубы. Аудиосистема мирового класса, международные диджеи." }, ja:{ name:"WOMB / ATOM TOKYO", short:"伝説のテクノクラブ。世界級サウンド、インターナショナルDJ。" }, url:"https://www.womb.co.jp/" }
   ];
 
@@ -485,64 +505,105 @@
 
   let totalSlides = Math.ceil(spotsData.length / 6);
 
-  // 高さ調整関数：各スライド内の全カードの高さを最大値に統一
-  function equalizeHeights() {
-    // 全てのスライドを走査
-    const slides = document.querySelectorAll('.slide');
-    slides.forEach(slide => {
-      const cards = slide.querySelectorAll('.spot-card');
-      if (cards.length === 0) return;
-      // 一旦高さをautoにリセット（ブラウザに自然な高さを計算させる）
-      cards.forEach(card => card.style.height = 'auto');
-      // 最大高さを取得
-      let maxHeight = 0;
-      cards.forEach(card => {
-        const h = card.offsetHeight;
-        if (h > maxHeight) maxHeight = h;
-      });
-      // 同じ高さを設定（最小でも余裕を持たせるため少し余白を追加）
-      if (maxHeight > 0) {
-        cards.forEach(card => card.style.height = `${maxHeight}px`);
-      }
+  // ========== すべてのカードの高さを完全に揃える (全スライド共通の最大高さ) ==========
+  function normalizeAllCardHeights() {
+    // 全実カード（ダミー除外）を取得
+    const allCards = Array.from(document.querySelectorAll('.spot-card:not(.dummy-card)'));
+    if (allCards.length === 0) return;
+
+    // いったん高さリセット (auto)
+    allCards.forEach(card => {
+      card.style.height = 'auto';
+    });
+    // 強制的にリフロー
+    void document.body.offsetHeight;
+
+    // 最大高さを計算
+    let maxHeight = 0;
+    allCards.forEach(card => {
+      const h = card.offsetHeight;
+      if (h > maxHeight) maxHeight = h;
+    });
+    if (maxHeight === 0) return;
+
+    // 全カード（ダミーも含む）に同じ高さを設定 → 全てのスライドの高さが完璧に統一される
+    const allCardsInclDummy = document.querySelectorAll('.spot-card');
+    allCardsInclDummy.forEach(card => {
+      card.style.height = `${maxHeight}px`;
     });
   }
 
-  // 確実に高さ調整を行う（画像読み込み待ち含む）
-  function safeEqualize() {
-    // 少し遅延させてDOMのレンダリングを待つ
-    setTimeout(() => {
-      equalizeHeights();
-    }, 50);
-    // さらに画像が完全に読み込まれた後にもう一度
-    if (document.images) {
-      let imagesLoaded = 0;
-      const totalImages = document.images.length;
-      if (totalImages === 0) {
-        equalizeHeights();
-        return;
-      }
-      const imgLoadHandler = () => {
-        imagesLoaded++;
-        if (imagesLoaded === totalImages) {
-          setTimeout(equalizeHeights, 30);
-        }
-      };
-      for (let i = 0; i < document.images.length; i++) {
-        if (document.images[i].complete) imgLoadHandler();
-        else document.images[i].addEventListener('load', imgLoadHandler);
-      }
+  // 画像完全ロード後に再調整 (より堅牢)
+  function waitForImagesAndEqualize() {
+    const images = document.querySelectorAll('.spot-card img');
+    if (images.length === 0) {
+      normalizeAllCardHeights();
+      return;
     }
+    let loadedCount = 0;
+    const totalImages = images.length;
+    const onImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        setTimeout(() => normalizeAllCardHeights(), 50);
+      }
+    };
+    images.forEach(img => {
+      if (img.complete) {
+        onImageLoad();
+      } else {
+        img.addEventListener('load', onImageLoad, { once: true });
+        img.addEventListener('error', onImageLoad, { once: true });
+      }
+    });
+    // タイムアウトでも実行 (保険)
+    setTimeout(() => {
+      if (loadedCount !== totalImages) normalizeAllCardHeights();
+    }, 300);
   }
 
+  // ダミーカードを追加し、各スライドのカード数を6枚に統一 (行数を完全一致させる)
+  function addDummyCardsToSlides() {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(slide => {
+      const grid = slide.querySelector('.spots-grid');
+      if (!grid) return;
+      let cards = grid.querySelectorAll('.spot-card');
+      const currentCount = cards.length;
+      if (currentCount < 6) {
+        const needed = 6 - currentCount;
+        for (let i = 0; i < needed; i++) {
+          const dummyCard = document.createElement('div');
+          dummyCard.className = 'spot-card dummy-card';
+          // 非表示でも構造は維持し、高さ調整に参加させるため中に空のinfoを入れる
+          dummyCard.innerHTML = `
+            <div class="spot-info" style="opacity:0; visibility:hidden;">
+              <h3 style="min-height: 24px;">&nbsp;</h3>
+              <p>&nbsp;</p>
+            </div>
+          `;
+          dummyCard.style.cursor = 'default';
+          grid.appendChild(dummyCard);
+        }
+      }
+    });
+    // ダミー追加後すぐに高さ調整を呼ぶ準備
+  }
+
+  // スライド構築 (カード枚数6の倍数になるようにし、ダミー追加)
   function buildSlides() {
     slidesContainer.innerHTML = "";
-    for (let i = 0; i < totalSlides; i++) {
+    const totalItems = spotsData.length;
+    const cardsPerSlide = 6;
+    const slideCount = Math.ceil(totalItems / cardsPerSlide);
+    
+    for (let i = 0; i < slideCount; i++) {
       const slide = document.createElement("div");
       slide.className = "slide";
       const grid = document.createElement("div");
       grid.className = "spots-grid";
-      const start = i * 6;
-      const end = Math.min(start + 6, spotsData.length);
+      const start = i * cardsPerSlide;
+      const end = Math.min(start + cardsPerSlide, totalItems);
       for (let j = start; j < end; j++) {
         const spot = spotsData[j];
         const card = document.createElement("div");
@@ -560,15 +621,18 @@
       slide.appendChild(grid);
       slidesContainer.appendChild(slide);
     }
-    // スライド構築後、高さ調整
-    safeEqualize();
+    // すべてのスライドにダミーを追加してカード数を6に統一
+    addDummyCardsToSlides();
     updateDots();
+    // 高さ調整（画像ロード後）
+    waitForImagesAndEqualize();
   }
 
   function updateDots() {
     const activeIndex = Math.round(swipeContainer.scrollLeft / swipeContainer.clientWidth);
     dotsContainer.innerHTML = "";
-    for (let i = 0; i < totalSlides; i++) {
+    const total = document.querySelectorAll('.slide').length;
+    for (let i = 0; i < total; i++) {
       const dot = document.createElement("div");
       dot.className = "dot" + (i === activeIndex ? " active" : "");
       dotsContainer.appendChild(dot);
@@ -576,16 +640,19 @@
   }
 
   swipeContainer.addEventListener("scroll", () => {
-    clearTimeout(window.scrollEndTimer);
-    window.scrollEndTimer = setTimeout(updateDots, 150);
+    clearTimeout(window._dotTimer);
+    window._dotTimer = setTimeout(updateDots, 100);
   });
+  
   window.addEventListener("resize", () => {
     setTimeout(() => {
       updateDots();
-      safeEqualize();
-    }, 200);
+      // リサイズ時も高さ再調整（レイアウト変化対応）
+      waitForImagesAndEqualize();
+    }, 150);
   });
 
+  // 詳細表示
   function showDetail(id) {
     currentDetailId = id;
     mainPage.classList.add("hidden");
@@ -597,7 +664,7 @@
   function renderDetailPage(id) {
     const spot = spotsData.find(s => s.id === id);
     if (!spot) return;
-    const detailText = spot[currentLang].detail || spot[currentLang].short;
+    const detailText = spot[currentLang].short; // 詳細はショートで代用（要望に応じて拡張可）
     const name = spot[currentLang].name;
     document.getElementById("detailContent").innerHTML = `
       <div class="detail-card">
@@ -622,28 +689,22 @@
   backBtn.onclick = goBackToMain;
   window.addEventListener("popstate", () => { if (!mainPage.classList.contains("hidden")) return; goBackToMain(); });
 
-  // スポンサー生成（オレンジの楕円なし、画像大きく）
+  // スポンサー表示
   function renderSponsors() {
+    if (typeof sponsorConfig === 'undefined') return;
     const topContainer = document.getElementById("sponsorTopContainer");
     const bottomContainer = document.getElementById("sponsorBottomContainer");
-    
-    function createSponsorLink(config) {
-      if (config.imageUrl && config.linkUrl) {
-        return `<a href="${config.linkUrl}" target="_blank" class="sponsor-link">
-                  <img src="${config.imageUrl}" alt="${config.altText}">
-                </a>`;
-      } else {
-        const defaultText = translations[currentLang]?.sponsor_default || config.defaultText;
-        return `<span class="sponsor-link" style="cursor:default; color: var(--text-secondary);">
-                  <i class="fas fa-ad"></i> ${defaultText}
-                </span>`;
+    function createLink(config) {
+      if (config && config.imageUrl && config.linkUrl) {
+        return `<a href="${config.linkUrl}" target="_blank" class="sponsor-link"><img src="${config.imageUrl}" alt="${config.altText || 'sponsor'}"></a>`;
       }
+      return `<span class="sponsor-link" style="cursor:default;"><i class="fas fa-ad"></i> ${config?.defaultText || 'Advertisement'}</span>`;
     }
-    
-    if (topContainer) topContainer.innerHTML = createSponsorLink(sponsorConfig.top);
-    if (bottomContainer) bottomContainer.innerHTML = createSponsorLink(sponsorConfig.bottom);
+    if (topContainer) topContainer.innerHTML = createLink(sponsorConfig.top);
+    if (bottomContainer) bottomContainer.innerHTML = createLink(sponsorConfig.bottom);
   }
 
+  // 言語更新
   function updateLanguage() {
     const t = translations[currentLang];
     document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -657,11 +718,13 @@
       badge.innerText = line;
       railLinesDiv.appendChild(badge);
     });
-    buildSlides(); // 再構築（新しい言語のテキストでカードを作り直す）
+    // 再構築してテキスト刷新
+    buildSlides();
     if (currentDetailId !== null) renderDetailPage(currentDetailId);
     renderSponsors();
   }
 
+  // テーマ初期化
   function initTheme() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
@@ -673,16 +736,23 @@
     localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
   });
   initTheme();
-  langSwitcher.addEventListener("change", (e) => { currentLang = e.target.value; updateLanguage(); });
   
+  langSwitcher.addEventListener("change", (e) => { 
+    currentLang = e.target.value; 
+    updateLanguage(); 
+  });
+  
+  // 初期構築
   buildSlides();
   renderSponsors();
   updateLanguage();
-  // ページ読み込み完了後も高さ再調整
+  
+  // 最後に安全のため load 時も高さ調整
   window.addEventListener('load', () => {
-    safeEqualize();
+    waitForImagesAndEqualize();
   });
 
+  // Service Worker (PWA)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered', reg)).catch(err => console.log('SW error', err));
